@@ -3,7 +3,7 @@ import * as E from "fp-ts/Either";
 import { pipe } from "fp-ts/function";
 
 it("Should return right when we pass a valid email", () => {
-  const validEmail = "jon@doe.com";
+  const validEmail = "jon@doe.cosm";
   const either = pipe(validEmail, emailCodec.decode);
 
   expect(E.isRight(either)).toBeTruthy();
