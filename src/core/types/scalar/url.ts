@@ -1,4 +1,6 @@
 import * as t from "io-ts";
+import * as E from "fp-ts/Either";
+import { pipe, constFalse, constTrue } from "fp-ts/function";
 import { withMessage } from "io-ts-types";
 
 type UrlBrand = {
@@ -17,10 +19,11 @@ export const urlCodec = withMessage(
 export type Url = t.TypeOf<typeof urlCodec>;
 
 const isUrl = (value: unknown): value is t.Branded<string, UrlBrand> => {
-  try {
-    const url = new URL(typeof value === "string" ? value : "");
-    return !!url;
-  } catch {
-    return false;
-  }
+  return pipe(
+    E.tryCatch(
+      () => new URL(typeof value === "string" ? value : ""),
+      E.toError
+    ),
+    E.fold(constFalse, constTrue)
+  );
 };
