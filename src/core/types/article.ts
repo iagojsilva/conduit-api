@@ -1,7 +1,7 @@
 import { profileCodec } from "@/core/types/profile";
 import { tagCodec } from "@/core/types/tag";
 import * as t from "io-ts";
-import { slugCodec } from "@/core/types/scalar/slug";
+import { slugCodec } from "@/core/types/scalar";
 
 export const articleCodec = t.type({
   slug: slugCodec,
