@@ -15,6 +15,8 @@ export const slugCodec = withMessage(
     "Invalid slug. Pleasu, use alphanumeric characters, dash and/or numbers. "
 );
 
+export type Slug = t.TypeOf<typeof slugCodec>;
+
 const isSlug = (value: string): value is t.Branded<string, SlugBrand> => {
   /**
    * Accept:
