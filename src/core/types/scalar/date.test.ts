@@ -8,3 +8,10 @@ it("Should return right when we pass a valid date", () => {
 
   expect(E.isRight(either)).toBeTruthy();
 });
+
+it("Should return left when we pass a invalid date", () => {
+  const date = "10-12-2021";
+  const either = pipe(date, dateCodec.decode);
+
+  expect(E.left(either)).toBeTruthy();
+});

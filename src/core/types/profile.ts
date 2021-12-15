@@ -1,8 +1,8 @@
 import * as t from "io-ts";
-import { urlCodec } from "./scalar";
+import { slugCodec, urlCodec } from "@/core/types/scalar";
 
 export const profileCodec = t.type({
-  username: t.string,
+  username: slugCodec,
   bio: t.string,
   image: urlCodec,
   following: t.boolean,
