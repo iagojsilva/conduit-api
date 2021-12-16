@@ -1,6 +1,6 @@
 import * as t from "io-ts";
 import * as E from "fp-ts/Either";
-import { pipe, constFalse, constTrue } from "fp-ts/function";
+import { pipe, constFalse, constTrue, constant } from "fp-ts/function";
 import { withMessage } from "io-ts-types";
 
 type UrlBrand = {
@@ -13,7 +13,7 @@ export const urlCodec = withMessage(
     (value): value is t.Branded<string, UrlBrand> => isUrl(value),
     "Url"
   ),
-  () => "Invalid URL"
+  constant("Invalid URL")
 );
 
 export type Url = t.TypeOf<typeof urlCodec>;
