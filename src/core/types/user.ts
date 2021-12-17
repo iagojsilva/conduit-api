@@ -6,13 +6,18 @@ import {
 } from "@/core/types/scalar";
 import * as t from "io-ts";
 
-export const userCodec = t.type({
+const userCodecRequired = t.type({
   email: emailCodec,
-  token: t.string,
   username: slugCodec,
+});
+
+const userCodecPartial = t.partial({
+  token: t.string,
   bio: t.string,
   image: urlCodec,
 });
+
+export const userCodec = t.intersection([userCodecRequired, userCodecPartial]);
 
 export type User = t.TypeOf<typeof userCodec>;
 
