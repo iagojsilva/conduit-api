@@ -1,4 +1,4 @@
-import { register } from "@/adapters/use-cases/user/register-adapter";
+import { register } from "@/adapters/use-cases/user/user-register-adapter";
 import { pipe } from "fp-ts/function";
 import * as TE from "fp-ts/TaskEither";
 

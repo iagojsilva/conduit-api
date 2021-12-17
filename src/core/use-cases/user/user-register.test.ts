@@ -1,5 +1,5 @@
 import { CreatableUser } from "@/core/types/user";
-import { OutsideRegister, register } from "./register";
+import { OutsideRegister, register } from "./user-register";
 import { pipe } from "fp-ts/function";
 import {
   mapAll,
