@@ -17,10 +17,20 @@ app.post("/api/user", (req, res) => {
     req.body.user,
     register(userRegister),
     TE.map((result) => res.json(result)),
-    TE.mapLeft((error) => res.status(400).json(error.message))
+    TE.mapLeft((error) =>
+      res.status(422).json(getErrorsMessages(error.message))
+    )
   )();
 });
 
 app.listen(PORT, () => {
   console.log(`Server listing on port ${PORT}`);
 });
+
+const getErrorsMessages = (errors: string) => {
+  return {
+    errors: {
+      body: errors.split(":::"),
+    },
+  };
+};

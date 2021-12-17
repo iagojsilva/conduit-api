@@ -11,7 +11,7 @@ export const passowordCodec = withMessage(
     (value): value is t.Branded<string, PasswordBrand> => value.length >= 8,
     "Password"
   ),
-  () => "Password should be at least 8 characters"
+  () => "Password should be at least 8 characters."
 );
 
 export type Password = t.TypeOf<typeof passowordCodec>;

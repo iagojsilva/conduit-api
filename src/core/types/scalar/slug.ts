@@ -12,7 +12,7 @@ export const slugCodec = withMessage(
     "Slug"
   ),
   () =>
-    "Invalid slug. Please, use alphanumeric characters, dash and/or numbers. "
+    "Invalid slug. Please, use alphanumeric characters, dash and/or numbers."
 );
 
 export type Slug = t.TypeOf<typeof slugCodec>;

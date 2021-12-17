@@ -21,7 +21,7 @@ it("Should not accept password less than 8 characters", () => {
     TE.fromEither,
     mapAll((errors) =>
       expect(getMessageError(errors)).toBe(
-        "Password should be at least 8 characters"
+        "Password should be at least 8 characters."
       )
     )
   )();

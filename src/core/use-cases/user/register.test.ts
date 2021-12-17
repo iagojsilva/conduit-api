@@ -51,7 +51,7 @@ it("Should not create user with an invalid username", () => {
     mapAll((error) =>
       expect(error).toEqual(
         new Error(
-          "Invalid slug. Please, use alphanumeric characters, dash and/or numbers. "
+          "Invalid slug. Please, use alphanumeric characters, dash and/or numbers."
         )
       )
     )
@@ -64,7 +64,7 @@ it("Should not create user with invalid email and password", () => {
     register(registerOk),
     mapAll((error) =>
       expect(error).toEqual(
-        new Error("Invalid Email:::Password should be at least 8 characters")
+        new Error("Invalid Email.:::Password should be at least 8 characters.")
       )
     )
   )();
