@@ -23,4 +23,21 @@ export const articlesCodec = t.type({
   articlesCount: positiveCodec,
 });
 
+const creatableArticleRequired = t.type({
+  title: t.string,
+  description: t.string,
+  body: t.string,
+});
+
+const creatableArticleOptional = t.partial({
+  tag: t.array(tagCodec),
+});
+
+export const creatableArticleCodec = t.intersection([
+  creatableArticleRequired,
+  creatableArticleOptional,
+]);
+
+export type CreatableArticle = t.TypeOf<typeof creatableArticleCodec>;
+
 export type Articles = t.TypeOf<typeof articlesCodec>;
