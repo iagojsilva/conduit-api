@@ -1,12 +1,12 @@
 import { register } from "@/adapters/use-cases/user/user-register-adapter";
 import { pipe } from "fp-ts/function";
 import * as TE from "fp-ts/TaskEither";
-import { registerArticle } from "@/adapters/use-cases/article/register-article-adapter";
+import { createArticleAdapter } from "@/adapters/use-cases/article/register-article-adapter";
 
 import express from "express";
 import {
   userRegister,
-  articleRegister as createArticleInDB,
+  createArticleDB as createArticleInDB,
 } from "@/adapters/ports/db";
 
 const PORT = process.env.PORT;
@@ -32,7 +32,7 @@ app.post("/api/user", (req, res) => {
 app.post("/api/articles", (req, res) => {
   return pipe(
     req.body.article,
-    registerArticle(createArticleInDB),
+    createArticleAdapter(createArticleInDB),
     TE.map((result) => res.json(result)),
     TE.mapLeft((error) =>
       res.status(422).json(getErrorsMessages(error.message))

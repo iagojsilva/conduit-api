@@ -1,4 +1,4 @@
-import { Article } from "@/core/types/article";
+import { ArticleOutput } from "@/core/types/article";
 import {
   registerArticle as createArticleCore,
   RegisterArticle,
@@ -6,8 +6,9 @@ import {
 import { OutsideArticleRegister } from "@/core/use-cases/articles/register-article";
 
 export type OutsideRegisterArticleType = OutsideArticleRegister<{
-  article: Article;
+  article: ArticleOutput;
 }>;
 
-export const registerArticle: RegisterArticle = (outsideRegister) => (data) =>
-  createArticleCore(outsideRegister)(data);
+export const createArticleAdapter: RegisterArticle =
+  (outsideRegister) => (data) =>
+    createArticleCore(outsideRegister)(data);

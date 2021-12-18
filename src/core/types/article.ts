@@ -1,19 +1,19 @@
 import { profileCodec } from "@/core/types/profile";
 import { tagCodec } from "@/core/types/tag";
 import * as t from "io-ts";
-import { positiveCodec } from "@/core/types/scalar";
+import { dateCodec, positiveCodec, slugCodec } from "@/core/types/scalar";
 import { withMessage } from "io-ts-types";
 
 const articleCodecRequired = t.type({
-  slug: t.string,
+  slug: slugCodec,
   title: t.string,
   description: t.string,
   body: t.string,
-  tagList: withMessage(t.array(t.string), () => "Invalid tagList"),
-  createdAt: t.string,
-  updatedAt: t.string,
+  tagList: withMessage(t.array(slugCodec), () => "Invalid tagList"),
+  createdAt: dateCodec,
+  updatedAt: dateCodec,
   favorited: t.boolean,
-  favoritesCount: t.number,
+  favoritesCount: positiveCodec,
 });
 
 const articleCodecOptional = t.partial({
@@ -26,6 +26,7 @@ const articleCodec = t.intersection([
 ]);
 
 export type Article = t.TypeOf<typeof articleCodec>;
+export type ArticleOutput = t.OutputOf<typeof articleCodec>;
 
 export const articlesCodec = t.type({
   article: t.array(articleCodec),
