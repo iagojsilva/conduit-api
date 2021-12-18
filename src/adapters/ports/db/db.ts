@@ -1,6 +1,9 @@
+import { OutsideRegisterArticleType } from "@/adapters/use-cases/article/register-article-adapter";
 import { OutsideRegisterType } from "@/adapters/use-cases/user/user-register-adapter";
-import { outsideRegister } from "@/ports/db-in-memory";
+import { outsideArticleRegister, outsideRegister } from "@/ports/db-in-memory";
 
-export const userRegister: OutsideRegisterType = (data) => {
-  return outsideRegister(data);
-};
+export const userRegister: OutsideRegisterType = (data) =>
+  outsideRegister(data);
+
+export const articleRegister: OutsideRegisterArticleType = (data) =>
+  outsideArticleRegister(data);

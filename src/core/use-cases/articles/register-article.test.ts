@@ -1,6 +1,6 @@
 import { pipe } from "fp-ts/function";
 import { CreatableArticle } from "@/core/types/article";
-import { OutsideRegister, registerArticle } from "./register-article";
+import { OutsideArticleRegister, registerArticle } from "./register-article";
 import { mapAll, unsafeSlug, unsafeString } from "@/config/test/fixtures";
 
 const data: CreatableArticle = {
@@ -29,11 +29,13 @@ const dataWithInvalidTitle: CreatableArticle = {
   body: "article-body 3",
 };
 
-const registerOk: OutsideRegister<string> = async (data: CreatableArticle) => {
+const registerOk: OutsideArticleRegister<string> = async (
+  data: CreatableArticle
+) => {
   return `Article ${data.title} successfully created!`;
 };
 
-const registerFail: OutsideRegister<never> = async () => {
+const registerFail: OutsideArticleRegister<never> = async () => {
   throw new Error("External Error");
 };
 
