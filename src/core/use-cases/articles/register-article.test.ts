@@ -1,5 +1,5 @@
 import { pipe } from "fp-ts/function";
-import { CreatableArticle, creatableArticleCodec } from "@/core/types/article";
+import { CreatableArticle } from "@/core/types/article";
 import { OutsideRegister, registerArticle } from "./register-article";
 import { mapAll, unsafeSlug, unsafeString } from "@/config/test/fixtures";
 
