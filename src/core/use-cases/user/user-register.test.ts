@@ -1,5 +1,5 @@
 import { CreatableUser } from "@/core/types/user";
-import { OutsideRegister, register } from "./user-register";
+import { OutsideRegister, registerUser } from "./user-register";
 import { pipe } from "fp-ts/function";
 import {
   mapAll,
@@ -37,7 +37,7 @@ const dataWithInvalidEmailAndPassword: CreatableUser = {
 it("Should create a user with sucess", async () => {
   return pipe(
     data,
-    register(registerOk),
+    registerUser(registerOk),
     mapAll((result) =>
       expect(result).toBe(`User ${data.username} successfuly created`)
     )
@@ -47,7 +47,7 @@ it("Should create a user with sucess", async () => {
 it("Should not create user with an invalid username", () => {
   return pipe(
     dataWithInvalidUsername,
-    register(registerOk),
+    registerUser(registerOk),
     mapAll((error) =>
       expect(error).toEqual(
         new Error(
@@ -61,7 +61,7 @@ it("Should not create user with an invalid username", () => {
 it("Should not create user with invalid email and password", () => {
   return pipe(
     dataWithInvalidEmailAndPassword,
-    register(registerOk),
+    registerUser(registerOk),
     mapAll((error) =>
       expect(error).toEqual(
         new Error("Invalid Email.:::Password should be at least 8 characters.")
@@ -73,7 +73,7 @@ it("Should not create user with invalid email and password", () => {
 it("Should return a Left if register function throws an error", () => {
   return pipe(
     data,
-    register(registerFail),
+    registerUser(registerFail),
     mapAll((error) => expect(error).toEqual(new Error("External error")))
   )();
 });

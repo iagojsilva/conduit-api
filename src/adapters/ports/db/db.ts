@@ -2,7 +2,7 @@ import { OutsideRegisterArticleType } from "@/adapters/use-cases/article/registe
 import { OutsideRegisterType } from "@/adapters/use-cases/user/user-register-adapter";
 import { outsideArticleRegister, outsideRegister } from "@/ports/db-in-memory";
 
-export const userRegister: OutsideRegisterType = (data) =>
+export const createUserDBAdapter: OutsideRegisterType = (data) =>
   outsideRegister(data);
 
 export const createArticleDBAdapter: OutsideRegisterArticleType = (data) =>
