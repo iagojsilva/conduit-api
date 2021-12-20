@@ -5,5 +5,5 @@ import { outsideArticleRegister, outsideRegister } from "@/ports/db-in-memory";
 export const userRegister: OutsideRegisterType = (data) =>
   outsideRegister(data);
 
-export const createArticleDB: OutsideRegisterArticleType = (data) =>
+export const createArticleDBAdapter: OutsideRegisterArticleType = (data) =>
   outsideArticleRegister(data);
