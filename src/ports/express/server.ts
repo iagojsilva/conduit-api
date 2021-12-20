@@ -7,8 +7,9 @@ import {
   createUserDBAdapter,
   createArticleDBAdapter,
 } from "@/adapters/ports/db";
+import { env } from "@/helpers";
 
-const PORT = process.env.PORT;
+const PORT = env("PORT");
 
 const app = express();
 
