@@ -1,12 +1,7 @@
 import { CreatableUser } from "@/core/types/user";
 import { OutsideRegister, registerUser } from "./user-register";
 import { pipe } from "fp-ts/function";
-import {
-  mapAll,
-  unsafeEmail,
-  unsafeSlug,
-  unsafePassword,
-} from "@/config/test/fixtures";
+import { mapAll, unsafe } from "@/config/test/fixtures";
 
 const registerOk: OutsideRegister<string> = async (data) => {
   return `User ${data.username} successfuly created`;
@@ -17,21 +12,21 @@ const registerFail: OutsideRegister<never> = async (_data) => {
 };
 
 const data: CreatableUser = {
-  username: unsafeSlug("username-test"),
-  email: unsafeEmail("email-test@test.com"),
-  password: unsafePassword("password-test"),
+  username: unsafe("username-test"),
+  email: unsafe("email-test@test.com"),
+  password: unsafe("password-test"),
 };
 
 const dataWithInvalidUsername: CreatableUser = {
-  username: unsafeSlug("u"),
-  email: unsafeEmail("email-test@test.com"),
-  password: unsafePassword("password-test"),
+  username: unsafe("u"),
+  email: unsafe("email-test@test.com"),
+  password: unsafe("password-test"),
 };
 
 const dataWithInvalidEmailAndPassword: CreatableUser = {
-  username: unsafeSlug("valid-username"),
-  email: unsafeEmail("invalid.email"),
-  password: unsafePassword("wrongp"),
+  username: unsafe("valid-username"),
+  email: unsafe("invalid.email"),
+  password: unsafe("wrongp"),
 };
 
 it("Should create a user with sucess", async () => {
