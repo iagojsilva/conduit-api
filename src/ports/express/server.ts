@@ -6,8 +6,10 @@ import express from "express";
 import {
   createUserDBAdapter,
   createArticleDBAdapter,
+  addCommentToArticleInDB,
 } from "@/adapters/ports/db";
 import { env } from "@/helpers";
+import { addCommentToAnArticleAdapter } from "@/adapters/use-cases/article/add-comment-to-an-article-adapter";
 
 const PORT = env("PORT");
 
@@ -33,6 +35,18 @@ app.post("/api/articles", (req, res) => {
   return pipe(
     req.body.article,
     createArticleAdapter(createArticleDBAdapter),
+    TE.map((result) => res.json(result)),
+    TE.mapLeft((error) =>
+      res.status(422).json(getErrorsMessages(error.message))
+    )
+  )();
+});
+
+app.post("/api/articles/:slug/comment", (req, res) => {
+  console.log(req.body.body);
+  return pipe(
+    req.body.comment,
+    addCommentToAnArticleAdapter(addCommentToArticleInDB),
     TE.map((result) => res.json(result)),
     TE.mapLeft((error) =>
       res.status(422).json(getErrorsMessages(error.message))

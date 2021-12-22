@@ -1,3 +1,4 @@
+import { OutsideAddCommentToAnArticleType } from "@/adapters/use-cases/article/add-comment-to-an-article-adapter";
 import { OutsideRegisterArticleType } from "@/adapters/use-cases/article/register-article-adapter";
 import { OutsideRegisterType } from "@/adapters/use-cases/user/user-register-adapter";
 import slugify from "slugify";
@@ -38,3 +39,23 @@ export const outsideArticleRegister: OutsideRegisterArticleType = async (
     },
   };
 };
+
+export const outsideAddCommentToAnArticle: OutsideAddCommentToAnArticleType =
+  async (data) => {
+    const date = new Date().toISOString();
+
+    return {
+      comment: {
+        id: 1,
+        createdAt: date,
+        updatedAt: date,
+        body: data.body,
+        /* author: {
+          username: "",
+          bio: "",
+          image: "",
+          following: false,
+        }, */
+      },
+    };
+  };
