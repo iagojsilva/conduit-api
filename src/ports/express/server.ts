@@ -2,7 +2,7 @@ import { registerUserAdapter } from "@/adapters/use-cases/user/user-register-ada
 import { pipe } from "fp-ts/function";
 import * as TE from "fp-ts/TaskEither";
 import { createArticleAdapter } from "@/adapters/use-cases/article/register-article-adapter";
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 import {
   createUserDBAdapter,
   createArticleDBAdapter,
@@ -17,6 +17,7 @@ const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.disable("x-powered-by").disable("etag");
 
 // Public
 app.post("/api/user", (req, res) => {
@@ -30,8 +31,12 @@ app.post("/api/user", (req, res) => {
   )();
 });
 
+const auth = (req: Request, res: Response, next: NextFunction) => {
+  next();
+};
+
 //Private
-app.post("/api/articles", (req, res) => {
+app.post("/api/articles", auth, (req, res) => {
   return pipe(
     req.body.article,
     createArticleAdapter(createArticleDBAdapter),
@@ -43,7 +48,6 @@ app.post("/api/articles", (req, res) => {
 });
 
 app.post("/api/articles/:slug/comment", (req, res) => {
-  console.log(req.body.body);
   return pipe(
     req.body.comment,
     addCommentToAnArticleAdapter(addCommentToArticleInDB),
