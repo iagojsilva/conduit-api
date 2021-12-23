@@ -1,18 +1,34 @@
 import * as comment from "@/adapters/use-cases/article/add-comment-to-an-article-adapter";
 import * as article from "@/adapters/use-cases/article/register-article-adapter";
 import * as user from "@/adapters/use-cases/user/user-register-adapter";
+import { User } from "@/adapters/use-cases/user/user-register-adapter";
 import slugify from "slugify";
 
-export const outsideRegisterUser: user.OutsideRegisterUser = async (data) => {
-  return {
-    user: {
-      email: data.email,
-      token: data.token,
-      username: data.username,
-      bio: "",
-      image: undefined,
-    },
+type DBUser = User & { id: number; password: string };
+
+type DB = {
+  users: {
+    [id: number]: DBUser;
   };
+};
+
+const db: DB = {
+  users: {},
+};
+
+type OutsideRegisterUser = (
+  data: user.CreatableUser
+) => Promise<DBUser | undefined>;
+
+export const outsideRegisterUser: OutsideRegisterUser = async (data) => {
+  const id = Date.now();
+  db.users[id] = {
+    id,
+    email: data.email,
+    username: data.username,
+    password: data.password,
+  };
+  return db.users[id];
 };
 
 export const outsideArticleRegister: article.OutsideRegisterArticleType =

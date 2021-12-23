@@ -5,11 +5,19 @@ import * as db from "@/ports/db-in-memory";
 import { generateTokenAdapter } from "../jwt";
 
 export const createUserDBAdapter: user.OutsideRegisterUser = async (data) => {
-  const token = await generateTokenAdapter({ id: 1 });
-  return db.outsideRegisterUser({
-    ...data,
-    token,
-  });
+  const registeredUser = await db.outsideRegisterUser(data);
+  if (!registeredUser) throw new Error("Error registering user");
+
+  const token = await generateTokenAdapter({ id: registeredUser.id });
+  return {
+    user: {
+      username: registeredUser.username,
+      email: registeredUser.email,
+      bio: "",
+      image: undefined,
+      token,
+    },
+  };
 };
 
 export const createArticleDBAdapter: article.OutsideRegisterArticleType = (
