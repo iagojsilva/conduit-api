@@ -5,7 +5,7 @@ import {
   registerUser as registerUserCore,
 } from "@/core/use-cases/user/user-register";
 
-export type OutsideRegisterType = OutsideRegister<{
+export type OutsideRegisterUser = OutsideRegister<{
   user: User;
 }>;
 
