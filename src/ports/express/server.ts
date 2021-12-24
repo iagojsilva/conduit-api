@@ -2,14 +2,15 @@ import { registerUserAdapter } from "@/adapters/use-cases/user/user-register-ada
 import { pipe } from "fp-ts/function";
 import * as TE from "fp-ts/TaskEither";
 import { createArticleAdapter } from "@/adapters/use-cases/article/register-article-adapter";
-import express, { NextFunction, Request, Response } from "express";
+import express from "express";
 import {
-  createUserDBAdapter,
-  createArticleDBAdapter,
+  createUserInDBAdapter,
+  createArticleInDBAdapter,
   addCommentToArticleInDB,
 } from "@/adapters/ports/db";
 import { env } from "@/helpers";
 import { addCommentToAnArticleAdapter } from "@/adapters/use-cases/article/add-comment-to-an-article-adapter";
+import { verifyJWT } from "@/adapters/ports/jwt";
 
 const PORT = env("PORT");
 
@@ -23,7 +24,7 @@ app.disable("x-powered-by").disable("etag");
 app.post("/api/user", (req, res) => {
   return pipe(
     req.body.user,
-    registerUserAdapter(createUserDBAdapter),
+    registerUserAdapter(createUserInDBAdapter),
     TE.map((result) => res.json(result)),
     TE.mapLeft((error) =>
       res.status(422).json(getErrorsMessages(error.message))
@@ -31,15 +32,24 @@ app.post("/api/user", (req, res) => {
   )();
 });
 
-const auth = (req: Request, res: Response, next: NextFunction) => {
+/* const auth = (req: Request, res: Response, next: NextFunction) => {
   next();
-};
+}; */
 
 //Private
-app.post("/api/articles", auth, (req, res) => {
+app.post("/api/articles", async (req, res) => {
+  const token = req.header("authorization")?.replace("Bearer ", "")!;
+  const payload = await verifyJWT(token);
+
+  const data = {
+    ...req.body.article,
+    authorID: payload["id"],
+  };
+
+  console.log({ payload });
   return pipe(
-    req.body.article,
-    createArticleAdapter(createArticleDBAdapter),
+    data,
+    createArticleAdapter(createArticleInDBAdapter),
     TE.map((result) => res.json(result)),
     TE.mapLeft((error) =>
       res.status(422).json(getErrorsMessages(error.message))

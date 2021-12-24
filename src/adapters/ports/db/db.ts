@@ -4,15 +4,13 @@ import * as user from "@/adapters/use-cases/user/user-register-adapter";
 import * as db from "@/ports/db-in-memory";
 import { generateTokenAdapter } from "../jwt";
 
-export const createUserDBAdapter: user.OutsideRegisterUser = async (data) => {
-  const registeredUser = await db.outsideRegisterUser(data);
-  if (!registeredUser) throw new Error("Error registering user");
-
-  const token = await generateTokenAdapter({ id: registeredUser.id });
+export const createUserInDBAdapter: user.OutsideRegisterUser = async (data) => {
+  const createdUser = await db.createUserInDB(data);
+  const token = await generateTokenAdapter({ id: createdUser.id });
   return {
     user: {
-      username: registeredUser.username,
-      email: registeredUser.email,
+      username: createdUser.username,
+      email: createdUser.email,
       bio: "",
       image: undefined,
       token,
@@ -20,9 +18,18 @@ export const createUserDBAdapter: user.OutsideRegisterUser = async (data) => {
   };
 };
 
-export const createArticleDBAdapter: article.OutsideRegisterArticleType = (
-  data
-) => db.outsideArticleRegister(data);
+export const createArticleInDBAdapter: article.OutsideRegisterArticleType =
+  async (data) => {
+    const createdArticle = await db.createArticleInDB(data);
+    const { authorID, ...articleWithoutAuthorID } = createdArticle.article;
+    return {
+      article: {
+        ...articleWithoutAuthorID,
+        favorited: false,
+      },
+      author: createdArticle.author,
+    };
+  };
 
 export const addCommentToArticleInDB: comment.OutsideAddCommentToAnArticleType =
-  (data) => db.outsideAddCommentToAnArticle(data);
+  (data) => db.addCommentToArticleInDB(data);
