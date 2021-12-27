@@ -1,7 +1,7 @@
 import { profileCodec } from "@/core/types/profile";
 import * as t from "io-ts";
-import { dateCodec } from "@/core/types/scalar";
-import { NonEmptyString, withMessage } from "io-ts-types";
+import { dateCodec, slugCodec } from "@/core/types/scalar";
+import { NonEmptyString, UUID, withMessage } from "io-ts-types";
 
 export const commentCodecRequired = t.type({
   id: t.number,
@@ -23,6 +23,8 @@ export type Comment = t.TypeOf<typeof commentCodec>;
 export type CommentOutput = t.OutputOf<typeof commentCodec>;
 
 export const creatableCommentCodec = t.type({
+  authorID: withMessage(UUID, () => "Invalid AuthorID"),
+  articleSlug: slugCodec,
   body: withMessage(
     NonEmptyString,
     () => "The body of the comment must not be a empty string"

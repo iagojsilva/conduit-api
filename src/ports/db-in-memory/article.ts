@@ -1,22 +1,34 @@
-import * as comment from "@/adapters/use-cases/article/add-comment-to-an-article-adapter";
-
 import slugify from "slugify";
 import { CreatableArticle } from "@/core/types/article";
 import { db } from "./db";
 import { v4 as uuidv4 } from "uuid";
+import { CreatableComment } from "@/core/types/comment";
+import { ProfileOutput } from "@/core/types/profile";
 
-/* type CreateArticleInDB = (data: CreatableArticle) => Promise<DBArticle>;
- */
+const getUserFromDB = (userID: string): ProfileOutput => {
+  const user = db.users[userID];
+  if (!user) throw new Error("There is no author with this ID");
+  return {
+    username: user.username,
+    bio: user.bio ?? "",
+    image: user.image ?? "",
+    following: false,
+  };
+};
+
 export const createArticleInDB = async (data: CreatableArticle) => {
   const date = new Date().toISOString();
   const id = uuidv4();
 
-  const author = db.users[data.authorID];
-  if (!author) throw new Error("There is no author with this ID");
+  const author = getUserFromDB(data.authorID);
+
+  const articleSlug = slugify(data.title, { lower: true });
+
+  db.articleIDBySlug[articleSlug] = id;
 
   const createdArticle = (db.articles[id] = {
     id,
-    slug: slugify(data.title, { lower: true }),
+    slug: articleSlug,
     title: data.title,
     description: data.description,
     body: data.body,
@@ -29,32 +41,31 @@ export const createArticleInDB = async (data: CreatableArticle) => {
 
   return {
     article: createdArticle,
-    author: {
-      email: author.email,
-      username: author.username,
-      bio: author.bio,
-      image: author.image,
-      following: false,
-    },
+    author,
   };
 };
 
-export const addCommentToArticleInDB: comment.OutsideAddCommentToAnArticleType =
-  async (data) => {
-    const date = new Date().toISOString();
+export const addCommentToArticleInDB = async (data: CreatableComment) => {
+  const articleID = db.articleIDBySlug[data.articleSlug] ?? "ID not found";
+  const id = Date.now();
+  const now = new Date().toISOString();
 
-    return {
-      comment: {
-        id: Date.now(),
-        createdAt: date,
-        updatedAt: date,
-        body: data.body,
-        /* author: {
-          username: "",
-          bio: "",
-          image: "",
-          following: false,
-        }, */
-      },
-    };
+  const author = getUserFromDB(data.authorID);
+
+  const comment = {
+    authorID: data.authorID,
+    articleID,
+    body: data.body,
+    createdAt: now,
+    id,
+    updatedAt: now,
   };
+
+  // Save the comment in DB
+  db.comments[articleID] = (db.comments[articleID] ?? []).concat([comment]);
+
+  return {
+    comment,
+    author,
+  };
+};

@@ -1,5 +1,5 @@
-import * as t from "io-ts";
-import { withMessage } from "io-ts-types";
+import * as t from 'io-ts'
+import { withMessage } from 'io-ts-types'
 
 type DateBrand = {
   readonly Date: unique symbol;
@@ -9,13 +9,13 @@ export const dateCodec = withMessage(
   t.brand(
     t.string,
     (value): value is t.Branded<string, DateBrand> => isDate(value),
-    "Date"
+    'Date',
   ),
-  () => "Invalid date. Please use data.toISOString"
-);
+  () => 'Invalid date. Please use data.toISOString',
+)
 
 export type Date = t.TypeOf<typeof dateCodec>;
 
 const isDate = (value: string): value is t.Branded<string, DateBrand> => {
-  return /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d.\d{3}Z$/.test(value);
-};
+  return /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d.\d{3}Z$/.test(value)
+}
