@@ -1,6 +1,6 @@
-import { profileCodec } from "@/core/types/profile";
+import { profileCodec } from "@/core/profile/types";
 import * as t from "io-ts";
-import { dateCodec, slugCodec } from "@/core/types/scalar";
+import { dateCodec, slugCodec } from "@/core/types";
 import { NonEmptyString, UUID, withMessage } from "io-ts-types";
 
 export const commentCodecRequired = t.type({

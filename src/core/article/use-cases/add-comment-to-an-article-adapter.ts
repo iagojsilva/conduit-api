@@ -1,5 +1,5 @@
-import { CommentOutput } from "@/core/types/comment";
-import * as comment from "@/core/use-cases/articles/create-comment";
+import { CommentOutput } from "@/core/comment/types";
+import * as comment from "./add-comment-to-an-article";
 
 export type OutsideAddCommentToAnArticleType =
   comment.OutsideAddComentToAnArticle<{ comment: CommentOutput }>;

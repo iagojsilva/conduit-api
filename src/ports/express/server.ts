@@ -1,7 +1,7 @@
-import { registerUserAdapter } from "@/adapters/use-cases/user/user-register-adapter";
+import { registerUserAdapter } from "@/core/user/use-cases/user-register-adapter";
 import { pipe } from "fp-ts/function";
 import * as TE from "fp-ts/TaskEither";
-import { createArticleAdapter } from "@/adapters/use-cases/article/register-article-adapter";
+import { createArticleAdapter } from "@/core/article/use-cases/register-article-adapter";
 import express, {
   NextFunction,
   Request as ExpressRequest,
@@ -12,10 +12,10 @@ import {
   createUserInDBAdapter,
   createArticleInDBAdapter,
   addCommentToArticleInDB,
-} from "@/adapters/ports/db";
+} from "@/ports/adapters/db";
 import { env } from "@/helpers";
-import { addCommentToAnArticleAdapter } from "@/adapters/use-cases/article/add-comment-to-an-article-adapter";
-import { CustomJWTPayload, verifyJWT } from "@/adapters/ports/jwt";
+import { addCommentToAnArticleAdapter } from "@/core/article/use-cases/add-comment-to-an-article-adapter";
+import { CustomJWTPayload, verifyJWT } from "@/ports/adapters/jwt";
 
 type Request = ExpressRequest & { auth?: CustomJWTPayload };
 

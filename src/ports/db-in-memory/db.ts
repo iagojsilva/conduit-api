@@ -1,17 +1,17 @@
-import { UserOutput } from '@/core/types/user'
-import { ArticleOutput } from '@/core/types/article'
-import { CommentOutput } from '@/core/types/comment'
+import { UserOutput } from "@/core/user/types";
+import { ArticleOutput } from "@/core/article/types";
+import { CommentOutput } from "@/core/comment/types";
 
-export type DBUser = Omit<UserOutput, 'token'> & {
+export type DBUser = Omit<UserOutput, "token"> & {
   id: string;
   password: string;
 };
-export type DBArticle = Omit<ArticleOutput, 'favorited' | 'author'> & {
+export type DBArticle = Omit<ArticleOutput, "favorited" | "author"> & {
   id: string;
   authorID: string;
 };
 
-export type DBComment = Omit<CommentOutput, 'author'> & {
+export type DBComment = Omit<CommentOutput, "author"> & {
   articleID: string;
   authorID: string;
 };
@@ -28,4 +28,4 @@ export const db: DB = {
   articles: {},
   articleIDBySlug: {},
   comments: {},
-}
+};

@@ -1,9 +1,9 @@
 import slugify from "slugify";
-import { CreatableArticle } from "@/core/types/article";
+import { CreatableArticle } from "@/core/article/types";
 import { db } from "./db";
 import { v4 as uuidv4 } from "uuid";
-import { CreatableComment } from "@/core/types/comment";
-import { ProfileOutput } from "@/core/types/profile";
+import { CreatableComment } from "@/core/comment/types";
+import { ProfileOutput } from "@/core/profile/types";
 
 const getUserFromDB = (userID: string): ProfileOutput => {
   const user = db.users[userID];

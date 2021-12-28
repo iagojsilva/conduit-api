@@ -1,9 +1,9 @@
 import { pipe } from "fp-ts/function";
-import { CreatableComment } from "@/core/types/comment";
+import { CreatableComment } from "@/core/comment/types";
 import {
   OutsideAddComentToAnArticle,
   addComentToAnArticle,
-} from "./create-comment";
+} from "./add-comment-to-an-article";
 import { mapAll, unsafe } from "@/config/test/fixtures";
 
 const data: CreatableComment = {
