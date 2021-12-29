@@ -18,12 +18,14 @@ import {
 import { env } from "@/helpers";
 import { addCommentToAnArticleAdapter } from "@/core/article/use-cases/add-comment-to-an-article-adapter";
 import { CustomJWTPayload, verifyJWT } from "@/ports/adapters/jwt";
+import cors from 'cors'
 
 type Request = ExpressRequest & { auth?: CustomJWTPayload };
 
 const PORT = env("PORT");
 
 const app = express();
+app.use(cors())
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -42,6 +44,7 @@ app.post("/api/user", (req, res) => {
 });
 
 app.post("/api/users/login", (req: Request, res: Response) => {
+  console.log(req.body)
   return pipe(
     TE.tryCatch(() => login(req.body.user), E.toError),
     TE.map((result) => res.json(result)),
