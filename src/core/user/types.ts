@@ -24,3 +24,10 @@ export const creatableUserCodec = t.type({
 });
 
 export type CreatableUser = t.TypeOf<typeof creatableUserCodec>;
+
+export const loginUserCodec = t.type({
+  email: emailCodec,
+  password: passowordCodec,
+});
+
+export type LoginUser = t.TypeOf<typeof loginUserCodec>;

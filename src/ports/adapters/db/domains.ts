@@ -2,7 +2,9 @@ import * as article from "@/core/article/use-cases/register-article-adapter";
 import * as comment from "@/core/article/use-cases/add-comment-to-an-article-adapter";
 import * as user from "@/core/user/use-cases/user-register-adapter";
 import { database as dbOps } from "./db";
+
 import { generateTokenAdapter } from "../jwt";
+import { LoginUser, UserOutput } from "@/core/user/types";
 
 export const createUserInDBAdapter: user.OutsideRegisterUser = async (data) => {
   const createdUser = await dbOps.createUserInDB(data);
@@ -13,6 +15,23 @@ export const createUserInDBAdapter: user.OutsideRegisterUser = async (data) => {
       email: createdUser["email"],
       bio: "",
       image: undefined,
+      token,
+    },
+  };
+};
+
+export type Login = (data: LoginUser) => Promise<{ user: UserOutput }>;
+
+export const login: Login = async (data) => {
+  const user = await dbOps.login(data);
+  const token = await generateTokenAdapter({ id: user.id });
+
+  return {
+    user: {
+      email: user.email,
+      username: user.username,
+      bio: user.bio,
+      image: user.image,
       token,
     },
   };
