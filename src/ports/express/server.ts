@@ -1,7 +1,5 @@
-import { registerUserAdapter } from "@/core/user/use-cases/user-register-adapter";
 import { pipe } from "fp-ts/function";
 import * as TE from "fp-ts/TaskEither";
-import * as E from "fp-ts/Either";
 import { createArticleAdapter } from "@/core/article/use-cases/register-article-adapter";
 import express, {
   NextFunction,
@@ -10,15 +8,14 @@ import express, {
 } from "express";
 
 import {
-  createUserInDBAdapter,
   createArticleInDBAdapter,
   addCommentToArticleInDB,
-  login,
 } from "@/ports/adapters/db";
 import { env } from "@/helpers";
 import { addCommentToAnArticleAdapter } from "@/core/article/use-cases/add-comment-to-an-article-adapter";
 import { CustomJWTPayload, verifyJWT } from "@/ports/adapters/jwt";
 import cors from 'cors'
+import * as user from "@/ports/adapters/http/modules/user";
 
 type Request = ExpressRequest & { auth?: CustomJWTPayload };
 
@@ -35,24 +32,25 @@ app.disable("x-powered-by").disable("etag");
 app.post("/api/user", (req, res) => {
   return pipe(
     req.body.user,
-    registerUserAdapter(createUserInDBAdapter),
+    user.createUser,
     TE.map((result) => res.json(result)),
     TE.mapLeft((error) =>
-      res.status(422).json(getErrorsMessages(error.message))
+      res.status(422).json(error)
     )
   )();
 });
 
 app.post("/api/users/login", (req: Request, res: Response) => {
-  console.log(req.body)
   return pipe(
-    TE.tryCatch(() => login(req.body.user), E.toError),
+    req.body.user,
+    user.login,
     TE.map((result) => res.json(result)),
     TE.mapLeft((error) =>
-      res.status(422).json(getErrorsMessages(error.message))
+      res.status(422).json(error)
     )
   )();
 });
+
 
 const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -94,8 +92,6 @@ app.post("/api/articles/:slug/comment", auth, (req: Request, res: Response) => {
     articleSlug: req.params["slug"],
   };
 
-  console.log(data);
-
   return pipe(
     data,
     addCommentToAnArticleAdapter(addCommentToArticleInDB),
@@ -106,9 +102,12 @@ app.post("/api/articles/:slug/comment", auth, (req: Request, res: Response) => {
   )();
 });
 
-app.listen(PORT, () => {
-  console.log(`Server listing on port ${PORT}`);
-});
+export const start = async () => {
+  app.listen(PORT, () => {
+    console.log(`Server listing on port ${PORT}`);
+  });
+}
+
 
 const getErrorsMessages = (errors: string) => {
   return {
