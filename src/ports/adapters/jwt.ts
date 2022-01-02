@@ -1,16 +1,17 @@
-import * as jwt from '@/ports/jwt/jose'
+import { AuthorID } from "@/core/article/types";
+import * as jwt from "@/ports/jwt/jose";
 
-export type CustomJWTPayload = {
-  [id: string]: unknown;
+export type JWTPayload = {
+  [id: string]: AuthorID;
 };
 
 type ExpirationTime = string;
 
 export const generateTokenAdapter = (
-  ...args: [CustomJWTPayload, ExpirationTime?]
-): Promise<string> => jwt.createJWT(...args)
+  ...args: [JWTPayload, ExpirationTime?]
+): Promise<string> => jwt.createJWT(...args);
 
 export const verifyJWT = async (token: string) => {
-  const data = await jwt.verifyJWT(token)
-  return data.payload
-}
+  const data = await jwt.verifyJWT(token);
+  return data.payload as JWTPayload;
+};
