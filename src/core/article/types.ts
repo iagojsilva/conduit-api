@@ -33,11 +33,14 @@ export const articlesCodec = t.type({
   articlesCount: positiveCodec,
 });
 
+export const authorIDCodec = withMessage(UUID, () => "Invalid authorID");
+export type AuthorID = t.TypeOf<typeof authorIDCodec>;
+
 const creatableArticleRequired = t.type({
   title: withMessage(t.string, () => "Invalid title"),
   description: withMessage(t.string, () => "Invalid description"),
   body: withMessage(t.string, () => "Invalid body"),
-  authorID: withMessage(UUID, () => "Invalid authorID"),
+  authorID: authorIDCodec,
 });
 
 const creatableArticleOptional = t.partial({
