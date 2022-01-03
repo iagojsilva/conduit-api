@@ -5,7 +5,6 @@ import express, {
   Request as ExpressRequest,
   Response,
 } from "express";
-
 import { env } from "@/helpers";
 import { JWTPayload, verifyJWT } from "@/ports/adapters/jwt";
 import cors from "cors";

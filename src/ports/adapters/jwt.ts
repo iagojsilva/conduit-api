@@ -1,8 +1,7 @@
-import { AuthorID } from "@/core/article/types";
 import * as jwt from "@/ports/jwt/jose";
 
 export type JWTPayload = {
-  [id: string]: AuthorID;
+  [id: string]: unknown;
 };
 
 type ExpirationTime = string;

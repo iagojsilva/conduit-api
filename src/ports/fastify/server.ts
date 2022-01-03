@@ -10,20 +10,24 @@ import { CreatableUser, LoginUser } from "@/core/user/types";
 import * as user from "../adapters/http/modules/user";
 import { JWTPayload, verifyJWT } from "@/ports/adapters/jwt";
 import { getErrorsMessages } from "../adapters/http/http";
-import { CreatableArticle } from "@/core/article/types";
+import { AuthorID, CreatableArticle } from "@/core/article/types";
 import * as article from "@/ports/adapters/http/modules/article";
-import { IncomingMessage, Server } from "http";
+import { CreatableComment } from "@/core/comment/types";
+import { Slug } from "@/core/types";
 
-const app = fastify({ logger: true });
+const app = fastify();
 
-const PORT = env("PORT");
-
+type PayloadHeaders = {
+  Headers: {
+    payload: JWTPayload;
+  };
+};
+// Create one user
 type APIUser = {
   Body: {
     user: CreatableUser;
   };
 };
-
 app.post<APIUser>("/api/user", async (req, reply) => {
   return pipe(
     req.body.user,
@@ -32,13 +36,12 @@ app.post<APIUser>("/api/user", async (req, reply) => {
     TE.mapLeft((error) => reply.status(422).send(error))
   )();
 });
-
+// Login one user
 type UsersLogin = {
   Body: {
     user: LoginUser;
   };
 };
-
 app.post<UsersLogin>("/api/users/login", async (req, reply) => {
   return pipe(
     req.body.user,
@@ -47,9 +50,9 @@ app.post<UsersLogin>("/api/users/login", async (req, reply) => {
     TE.mapLeft((error) => reply.status(422).send(error))
   )();
 });
-
+// Authetication by middleware
 const auth = async (
-  req: FastifyRequest<ApiArticles, Server, IncomingMessage, unknown>,
+  req: FastifyRequest<PayloadHeaders>,
   reply: FastifyReply,
   done: DoneFuncWithErrOrRes
 ) => {
@@ -63,26 +66,20 @@ const auth = async (
     reply.status(401).send(getErrorsMessages("You need to be authorized"));
   }
 };
-
-const articleOptions = {
+const authOptions = {
   preValidation: auth,
 };
-
-export type ApiArticles = {
+export type ApiArticles = PayloadHeaders & {
   Body: {
     article: CreatableArticle;
   };
-  Headers: {
-    payload: JWTPayload;
-  };
 };
-
-app.post<ApiArticles>("/api/articles", articleOptions, async (req, reply) => {
-  const authorID = req.headers.payload["id"];
-
+app.post<ApiArticles>("/api/articles", authOptions, async (req, reply) => {
+  // TODO: There is no way id be undefined here beaucase the auth function is setting the payload
+  const authorID = req.headers.payload["id"]!;
   const data = {
     ...req.body.article,
-    authorID: authorID,
+    authorID: authorID as AuthorID,
   };
 
   return pipe(
@@ -92,9 +89,39 @@ app.post<ApiArticles>("/api/articles", articleOptions, async (req, reply) => {
     TE.mapLeft((error) => reply.status(422).send(error))
   )();
 });
+// Add comment to one article
+type ApiComment = PayloadHeaders & {
+  Body: {
+    comment: CreatableComment;
+  };
+  Params: {
+    slug: Slug;
+  };
+};
+app.post<ApiComment>(
+  "/api/articles/:slug/comment",
+  authOptions,
+  async (req, reply) => {
+    // TODO: There is no way id be undefined here beaucase the auth function is setting the payload
+    const authorID = req.headers.payload["id"]!;
+    const data = {
+      ...req.body.comment,
+      authorID: authorID as AuthorID,
+      articleSlug: req.params.slug,
+    };
 
+    return pipe(
+      data,
+      article.addCommentToAnArticle,
+      TE.map((result) => reply.send(result)),
+      TE.mapLeft((error) => reply.status(422).send(error))
+    )();
+  }
+);
+// Init the application
 export const start = async () => {
   try {
+    const PORT = env("PORT");
     await app.listen(PORT);
   } catch (err) {
     app.log.error(err);
