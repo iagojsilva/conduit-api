@@ -24,7 +24,7 @@ app.use(express.json());
 app.disable("x-powered-by").disable("etag");
 
 // Public
-app.post("/api/user", (req, res) => {
+app.post("/api/users", (req, res) => {
   return pipe(
     req.body.user,
     user.createUser,
@@ -44,7 +44,7 @@ app.post("/api/users/login", (req: Request, res: Response) => {
 
 const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const token = req.header("authorization")?.replace("Bearer ", "")!;
+    const token = req.header("authorization")?.replace("Token ", "")!;
     const payload = await verifyJWT(token);
     req.auth = payload;
     next();
@@ -71,7 +71,7 @@ app.post("/api/articles", auth, async (req: Request, res: Response) => {
   )();
 });
 
-app.post("/api/articles/:slug/comment", auth, (req: Request, res: Response) => {
+app.post("/api/articles/:slug/comments", auth, (req: Request, res: Response) => {
   const payload = req.auth ?? {};
 
   const data = {
