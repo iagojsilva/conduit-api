@@ -24,5 +24,5 @@ const isSlug = (value: string): value is t.Branded<string, SlugBrand> => {
    * - followerd by a letter, number or dash;
    * - ends with a letter or number;
    */
-  return /^[a-z][a-z0-9-]+?[a-z0-9]$/.test(value)
+  return /^[a-z][a-z0-9-_]+?[a-z0-9]$/.test(value)
 }

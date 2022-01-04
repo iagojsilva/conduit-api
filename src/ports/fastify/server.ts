@@ -28,7 +28,7 @@ type APIUser = {
     user: CreatableUser;
   };
 };
-app.post<APIUser>("/api/user", async (req, reply) => {
+app.post<APIUser>("/api/users", async (req, reply) => {
   return pipe(
     req.body.user,
     user.createUser,
@@ -57,7 +57,7 @@ const auth = async (
   done: DoneFuncWithErrOrRes
 ) => {
   try {
-    const token = req.headers.authorization?.replace("Bearer ", "")!;
+    const token = req.headers.authorization?.replace("Token ", "")!;
     const payload = await verifyJWT(token);
     req.headers.payload = payload;
     done();
@@ -99,7 +99,7 @@ type ApiComment = PayloadHeaders & {
   };
 };
 app.post<ApiComment>(
-  "/api/articles/:slug/comment",
+  "/api/articles/:slug/comments",
   authOptions,
   async (req, reply) => {
     // TODO: There is no way id be undefined here beaucase the auth function is setting the payload

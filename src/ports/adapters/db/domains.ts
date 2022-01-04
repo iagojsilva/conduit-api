@@ -14,7 +14,7 @@ export const createUserInDBAdapter: user.OutsideRegisterUser = async (data) => {
       username: createdUser["username"],
       email: createdUser["email"],
       bio: "",
-      image: undefined,
+      image: "",
       token,
     },
   };
@@ -30,8 +30,8 @@ export const login: Login = async (data) => {
     user: {
       email: user.email,
       username: user.username,
-      bio: user.bio,
-      image: user.image,
+      bio: user.bio ?? '',
+      image: user.image ?? '',
       token,
     },
   };
@@ -45,8 +45,8 @@ export const createArticleInDBAdapter: article.OutsideRegisterArticleType =
       article: {
         ...articleWithoutAuthorID,
         favorited: false,
+        author: createdArticle.author,
       },
-      author: createdArticle.author,
     };
   };
 
