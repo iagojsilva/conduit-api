@@ -6,7 +6,6 @@ import { failure } from "io-ts/PathReporter";
 type ValidateUser = (data: CreatableUser) => E.Either<Error, unknown>;
 
 export const validateUser: ValidateUser = (data) => {
-  console.log(data)
   return pipe(
     data,
     creatableUserCodec.decode,
