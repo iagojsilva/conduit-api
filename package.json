@@ -12,6 +12,7 @@
     "test": "jest --passWithNoTests && yarn test:integration",
     "test:watch": "jest --watch",
     "test:integration": "jest --passWithNoTests --config jest.config.integration.js",
+    "api": "APIURL=http://localhost:4444/api src/config/test/run-api-tests.sh",
     "test:integration:watch": " yarn test:integration --watch",
     "lint": "eslint . --ext js,ts",
     "lint:fix": "eslint --fix . --ext js,ts",
