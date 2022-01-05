@@ -14,7 +14,6 @@ import { AuthorID, CreatableArticle } from "@/core/article/types";
 import * as article from "@/ports/adapters/http/modules/article";
 import { CreatableComment } from "@/core/comment/types";
 import { Slug } from "@/core/types";
-import { getCurrentUserAdapter } from "../adapters/db";
 
 const app = fastify();
 
@@ -59,22 +58,19 @@ app.post<APIUser>("/api/users", async (req, reply) => {
   )();
 });
 
-
-app.get('/api/user', authOptions, async (req, reply) => {
-  const token = req.headers.authorization?.replace('Token ', '')!
+app.get("/api/user", authOptions, async (req, reply) => {
+  const token = req.headers.authorization?.replace("Token ", "")!;
   const userID = req.headers.payload["id"]! as AuthorID;
-  const data = {userID, token} 
+  const data = { userID, token };
   return pipe(
     data,
-    getCurrentUserAdapter,
-    TE.map(result => {
-      reply.send(result)
+    user.getCurrentUser,
+    TE.map((result) => {
+      reply.send(result);
     }),
-    TE.mapLeft(errors => reply.status(404).send(getErrorsMessages(errors.message)))
-  )()
-})
-
-
+    TE.mapLeft((errors) => reply.status(404).send(errors))
+  )();
+});
 
 // Login one user
 type UsersLogin = {

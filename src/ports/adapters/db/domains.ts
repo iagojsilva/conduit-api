@@ -2,8 +2,8 @@ import * as article from "@/core/article/use-cases/register-article-adapter";
 import * as comment from "@/core/article/use-cases/add-comment-to-an-article-adapter";
 import * as user from "@/core/user/use-cases/user-register-adapter";
 import { database as dbOps } from "./db";
-import * as E from 'fp-ts/Either';
-import * as TE from 'fp-ts/TaskEither'
+import * as E from "fp-ts/Either";
+import * as TE from "fp-ts/TaskEither";
 import { generateTokenAdapter } from "../jwt";
 import { LoginUser, UserOutput } from "@/core/user/types";
 import { AuthorID } from "@/core/article/types";
@@ -49,8 +49,8 @@ export const createArticleInDBAdapter: article.OutsideRegisterArticleType =
       article: {
         ...articleWithoutAuthorID,
         favorited: false,
+        author: createdArticle.author,
       },
-      author: createdArticle.author,
     };
   };
 
@@ -67,23 +67,23 @@ export const addCommentToArticleInDB: comment.OutsideAddCommentToAnArticleType =
     };
   };
 
-  export const getCurrentUserAdapter = ({userID, token}: {userID: AuthorID, token:string}): TE.TaskEither<Error, {user: UserOutput}> => {
-      const makeData = (data: DBUser): {user: UserOutput} => {
-        console.log(data)
-        const {id, password, ...user } = data
-        const finalData = {
-          user: 
-            {...user, token}
-          
-        }
-        return finalData 
-    }
-    
-    return pipe(
-      TE.tryCatch(
-        ()=> dbOps.getCurrentUser(userID),
-        E.toError 
-      ),
-      TE.map(makeData)
-      )  
-  }
+export const getCurrentUserAdapter = ({
+  userID,
+  token,
+}: {
+  userID: AuthorID;
+  token: string;
+}): TE.TaskEither<Error, { user: UserOutput }> => {
+  const makeData = (data: DBUser): { user: UserOutput } => {
+    const { id, password, ...user } = data;
+    const finalData = {
+      user: { ...user, token },
+    };
+    return finalData;
+  };
+
+  return pipe(
+    TE.tryCatch(() => dbOps.getCurrentUser(userID), E.toError),
+    TE.map(makeData)
+  );
+};

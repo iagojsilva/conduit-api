@@ -11,6 +11,7 @@ import cors from "cors";
 import * as user from "@/ports/adapters/http/modules/user";
 import * as article from "@/ports/adapters/http/modules/article";
 import { getErrorsMessages } from "@/ports/adapters/http/http";
+import { AuthorID } from "@/core/article/types";
 
 type Request = ExpressRequest & { auth?: JWTPayload };
 
@@ -33,15 +34,6 @@ app.post("/api/users", (req, res) => {
   )();
 });
 
-app.post("/api/users/login", (req: Request, res: Response) => {
-  return pipe(
-    req.body.user,
-    user.login,
-    TE.map((result) => res.json(result)),
-    TE.mapLeft((error) => res.status(422).json(error))
-  )();
-});
-
 const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = req.header("authorization")?.replace("Token ", "")!;
@@ -53,6 +45,28 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
     res.status(401).json(getErrorsMessages("You need to be authorized"));
   }
 };
+app.get("/api/user", auth, async (req: Request, res: Response) => {
+  const token = req.headers.authorization?.replace("Token ", "")!;
+  const userID = req.auth?.["id"] as AuthorID;
+  const data = { userID, token };
+  return pipe(
+    data,
+    user.getCurrentUser,
+    TE.map((result) => {
+      res.json(result);
+    }),
+    TE.mapLeft((errors) => res.status(404).json(errors))
+  )();
+});
+
+app.post("/api/users/login", (req: Request, res: Response) => {
+  return pipe(
+    req.body.user,
+    user.login,
+    TE.map((result) => res.json(result)),
+    TE.mapLeft((error) => res.status(422).json(error))
+  )();
+});
 
 // Private
 app.post("/api/articles", auth, async (req: Request, res: Response) => {
@@ -71,22 +85,26 @@ app.post("/api/articles", auth, async (req: Request, res: Response) => {
   )();
 });
 
-app.post("/api/articles/:slug/comments", auth, (req: Request, res: Response) => {
-  const payload = req.auth ?? {};
+app.post(
+  "/api/articles/:slug/comments",
+  auth,
+  (req: Request, res: Response) => {
+    const payload = req.auth ?? {};
 
-  const data = {
-    ...req.body.comment,
-    authorID: payload["id"],
-    articleSlug: req.params["slug"],
-  };
+    const data = {
+      ...req.body.comment,
+      authorID: payload["id"],
+      articleSlug: req.params["slug"],
+    };
 
-  return pipe(
-    data,
-    article.addCommentToAnArticle,
-    TE.map((result) => res.json(result)),
-    TE.mapLeft((error) => res.status(422).json(error))
-  )();
-});
+    return pipe(
+      data,
+      article.addCommentToAnArticle,
+      TE.map((result) => res.json(result)),
+      TE.mapLeft((error) => res.status(422).json(error))
+    )();
+  }
+);
 
 export const start = async () => {
   app.listen(PORT, () => {
