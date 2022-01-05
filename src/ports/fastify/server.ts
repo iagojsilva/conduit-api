@@ -28,28 +28,7 @@ type APIUser = {
     user: CreatableUser;
   };
 };
-app.post<APIUser>("/api/users", async (req, reply) => {
-  return pipe(
-    req.body.user,
-    user.createUser,
-    TE.map((result) => reply.send(result)),
-    TE.mapLeft((error) => reply.status(422).send(error))
-  )();
-});
-// Login one user
-type UsersLogin = {
-  Body: {
-    user: LoginUser;
-  };
-};
-app.post<UsersLogin>("/api/users/login", async (req, reply) => {
-  return pipe(
-    req.body.user,
-    user.login,
-    TE.map((result) => reply.send(result)),
-    TE.mapLeft((error) => reply.status(422).send(error))
-  )();
-});
+
 // Authetication by middleware
 const auth = async (
   req: FastifyRequest<PayloadHeaders>,
@@ -66,9 +45,48 @@ const auth = async (
     reply.status(401).send(getErrorsMessages("You need to be authorized"));
   }
 };
+
 const authOptions = {
   preValidation: auth,
 };
+app.post<APIUser>("/api/users", async (req, reply) => {
+  return pipe(
+    req.body.user,
+    user.createUser,
+    TE.map((result) => reply.send(result)),
+    TE.mapLeft((error) => reply.status(422).send(error))
+  )();
+});
+
+app.get("/api/user", authOptions, async (req, reply) => {
+  const token = req.headers.authorization?.replace("Token ", "")!;
+  const userID = req.headers.payload["id"]! as AuthorID;
+  const data = { userID, token };
+  return pipe(
+    data,
+    user.getCurrentUser,
+    TE.map((result) => {
+      reply.send(result);
+    }),
+    TE.mapLeft((errors) => reply.status(404).send(errors))
+  )();
+});
+
+// Login one user
+type UsersLogin = {
+  Body: {
+    user: LoginUser;
+  };
+};
+app.post<UsersLogin>("/api/users/login", async (req, reply) => {
+  return pipe(
+    req.body.user,
+    user.login,
+    TE.map((result) => reply.send(result)),
+    TE.mapLeft((error) => reply.status(422).send(error))
+  )();
+});
+
 export type ApiArticles = PayloadHeaders & {
   Body: {
     article: CreatableArticle;

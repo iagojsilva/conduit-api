@@ -2,9 +2,13 @@ import * as article from "@/core/article/use-cases/register-article-adapter";
 import * as comment from "@/core/article/use-cases/add-comment-to-an-article-adapter";
 import * as user from "@/core/user/use-cases/user-register-adapter";
 import { database as dbOps } from "./db";
-
+import * as E from "fp-ts/Either";
+import * as TE from "fp-ts/TaskEither";
 import { generateTokenAdapter } from "../jwt";
 import { LoginUser, UserOutput } from "@/core/user/types";
+import { AuthorID } from "@/core/article/types";
+import { pipe } from "fp-ts/lib/function";
+import { DBUser } from "@/ports/db-in-memory/db";
 
 export const createUserInDBAdapter: user.OutsideRegisterUser = async (data) => {
   const createdUser = await dbOps.createUserInDB(data);
@@ -30,8 +34,8 @@ export const login: Login = async (data) => {
     user: {
       email: user.email,
       username: user.username,
-      bio: user.bio ?? '',
-      image: user.image ?? '',
+      bio: user.bio,
+      image: user.image,
       token,
     },
   };
@@ -62,3 +66,24 @@ export const addCommentToArticleInDB: comment.OutsideAddCommentToAnArticleType =
       },
     };
   };
+
+export const getCurrentUserAdapter = ({
+  userID,
+  token,
+}: {
+  userID: AuthorID;
+  token: string;
+}): TE.TaskEither<Error, { user: UserOutput }> => {
+  const makeData = (data: DBUser): { user: UserOutput } => {
+    const { id, password, ...user } = data;
+    const finalData = {
+      user: { ...user, token },
+    };
+    return finalData;
+  };
+
+  return pipe(
+    TE.tryCatch(() => dbOps.getCurrentUser(userID), E.toError),
+    TE.map(makeData)
+  );
+};
