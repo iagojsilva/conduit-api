@@ -6,11 +6,11 @@ import express, {
   Response,
 } from "express";
 import { env } from "@/helpers";
-import { JWTPayload, verifyJWT } from "@/ports/adapters/jwt";
+import { extractToken, JWTPayload } from "@/ports/adapters/jwt";
 import cors from "cors";
 import * as user from "@/ports/adapters/http/modules/user";
 import * as article from "@/ports/adapters/http/modules/article";
-import { getErrorsMessages } from "@/ports/adapters/http/http";
+import { getErrorsMessages, getToken } from "@/ports/adapters/http/http";
 import { AuthorID } from "@/core/article/types";
 
 type Request = ExpressRequest & { auth?: JWTPayload };
@@ -36,8 +36,7 @@ app.post("/api/users", (req, res) => {
 
 const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const token = req.header("authorization")?.replace("Token ", "")!;
-    const payload = await verifyJWT(token);
+    const payload = await getToken(req.headers.authorization);
     req.auth = payload;
     next();
   } catch {
@@ -46,7 +45,7 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 app.get("/api/user", auth, async (req: Request, res: Response) => {
-  const token = req.headers.authorization?.replace("Token ", "")!;
+  const token = extractToken(req.headers.authorization);
   const userID = req.auth?.["id"] as AuthorID;
   const data = { userID, token };
   return pipe(

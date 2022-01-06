@@ -14,3 +14,6 @@ export const verifyJWT = async (token: string) => {
   const data = await jwt.verifyJWT(token);
   return data.payload as JWTPayload;
 };
+
+export const extractToken = (authHeader = "") =>
+  authHeader.replace("Token ", "");
