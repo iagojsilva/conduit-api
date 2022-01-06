@@ -24,8 +24,10 @@ export const login = (data: LoginUser) => {
 
 export const getCurrentUser = (data: { userID: AuthorID; token: string }) => {
   return pipe(
-    data,
-    db.getCurrentUserAdapter,
+    TE.tryCatch(() => db.getCurrentUserAdapter(data.userID), E.toError),
+    TE.map(({ id, password, ...user }) => ({
+      user: { ...user, token: data.token },
+    })),
     TE.mapLeft((errors) => getErrorsMessages(errors.message))
   );
 };

@@ -6,16 +6,17 @@ import fastify, {
 } from "fastify";
 import { pipe } from "fp-ts/lib/function";
 import * as TE from "fp-ts/TaskEither";
+import * as E from "fp-ts/Either";
 import { CreatableUser, LoginUser } from "@/core/user/types";
 import * as user from "../adapters/http/modules/user";
-import { JWTPayload, verifyJWT } from "@/ports/adapters/jwt";
-import { getErrorsMessages } from "../adapters/http/http";
+import { extractToken, JWTPayload } from "@/ports/adapters/jwt";
+import { getErrorsMessages, getToken } from "../adapters/http/http";
 import { AuthorID, CreatableArticle } from "@/core/article/types";
 import * as article from "@/ports/adapters/http/modules/article";
 import { CreatableComment } from "@/core/comment/types";
 import { Slug } from "@/core/types";
 
-const app = fastify();
+const app = fastify({ logger: true });
 
 type PayloadHeaders = {
   Headers: {
@@ -30,27 +31,26 @@ type APIUser = {
 };
 
 // Authetication by middleware
-const auth = async (
+const auth = (
   req: FastifyRequest<PayloadHeaders>,
   reply: FastifyReply,
   done: DoneFuncWithErrOrRes
 ) => {
-  try {
-    const token = req.headers.authorization?.replace("Token ", "")!;
-    const payload = await verifyJWT(token);
-    req.headers.payload = payload;
-    done();
-  } catch {
-    // If the user is not authorized
-    reply.status(401).send(getErrorsMessages("You need to be authorized"));
-  }
+  pipe(
+    TE.tryCatch(() => getToken(req.headers.authorization), E.toError),
+    TE.map((payload) => {
+      req.headers.payload = payload;
+      done();
+    }),
+    TE.mapLeft(() => reply.status(401).send(getErrorsMessages("Unauthorized")))
+  )();
 };
 
 const authOptions = {
   preValidation: auth,
 };
-app.post<APIUser>("/api/users", async (req, reply) => {
-  return pipe(
+app.post<APIUser>("/api/users", (req, reply) => {
+  pipe(
     req.body.user,
     user.createUser,
     TE.map((result) => reply.send(result)),
@@ -58,11 +58,11 @@ app.post<APIUser>("/api/users", async (req, reply) => {
   )();
 });
 
-app.get("/api/user", authOptions, async (req, reply) => {
-  const token = req.headers.authorization?.replace("Token ", "")!;
+app.get("/api/user", authOptions, (req, reply) => {
+  const token = extractToken(req.headers.authorization);
   const userID = req.headers.payload["id"]! as AuthorID;
   const data = { userID, token };
-  return pipe(
+  pipe(
     data,
     user.getCurrentUser,
     TE.map((result) => {
@@ -78,8 +78,8 @@ type UsersLogin = {
     user: LoginUser;
   };
 };
-app.post<UsersLogin>("/api/users/login", async (req, reply) => {
-  return pipe(
+app.post<UsersLogin>("/api/users/login", (req, reply) => {
+  pipe(
     req.body.user,
     user.login,
     TE.map((result) => reply.send(result)),
@@ -92,7 +92,7 @@ export type ApiArticles = PayloadHeaders & {
     article: CreatableArticle;
   };
 };
-app.post<ApiArticles>("/api/articles", authOptions, async (req, reply) => {
+app.post<ApiArticles>("/api/articles", authOptions, (req, reply) => {
   // TODO: There is no way id be undefined here beaucase the auth function is setting the payload
   const authorID = req.headers.payload["id"]!;
   const data = {
@@ -100,7 +100,7 @@ app.post<ApiArticles>("/api/articles", authOptions, async (req, reply) => {
     authorID: authorID as AuthorID,
   };
 
-  return pipe(
+  pipe(
     data,
     article.createArticle,
     TE.map((result) => reply.send(result)),
@@ -119,7 +119,7 @@ type ApiComment = PayloadHeaders & {
 app.post<ApiComment>(
   "/api/articles/:slug/comments",
   authOptions,
-  async (req, reply) => {
+  (req, reply) => {
     // TODO: There is no way id be undefined here beaucase the auth function is setting the payload
     const authorID = req.headers.payload["id"]!;
     const data = {
@@ -128,7 +128,7 @@ app.post<ApiComment>(
       articleSlug: req.params.slug,
     };
 
-    return pipe(
+    pipe(
       data,
       article.addCommentToAnArticle,
       TE.map((result) => reply.send(result)),
