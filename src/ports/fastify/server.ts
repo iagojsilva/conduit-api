@@ -59,12 +59,11 @@ app.post<APIUser>("/api/users", (req, reply) => {
 });
 
 app.get("/api/user", authOptions, (req, reply) => {
-  const authHeader = req.headers.authorization!;
-  const userID = req.headers.payload["id"]! as AuthorID;
-  const data = { userID, authHeader };
+  const payload = req.headers.payload
   pipe(
-    data,
-    user.getCurrentUser,
+    user.getCurrentUser(
+      {payload, authHeader: req.headers.authorization!}
+    ),
     TE.map((result) => {
       reply.send(result);
     }),

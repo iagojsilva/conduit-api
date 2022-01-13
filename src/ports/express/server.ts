@@ -11,7 +11,6 @@ import cors from "cors";
 import * as user from "@/ports/adapters/http/modules/user";
 import * as article from "@/ports/adapters/http/modules/article";
 import { getErrorsMessages, getToken } from "@/ports/adapters/http/http";
-import { AuthorID } from "@/core/article/types";
 
 type Request = ExpressRequest & { auth?: JWTPayload };
 
@@ -45,12 +44,14 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 app.get("/api/user", auth, async (req: Request, res: Response) => {
-  const authHeader = req.headers.authorization!;
-  const userID = req.auth?.["id"] as AuthorID;
-  const data = { userID, authHeader };
+  const payload = req.auth ?? {}
   return pipe(
-    data,
-    user.getCurrentUser,
+    user.getCurrentUser(
+      {
+        payload,
+        authHeader: req.headers.authorization ?? '',
+      }
+    ),
     TE.map((result) => {
       res.json(result);
     }),

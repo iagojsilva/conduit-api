@@ -35,9 +35,10 @@ export const login = (data: LoginUser) => {
   );
 };
 
-export const getCurrentUser = (data: { userID: AuthorID; authHeader: string }) => {
+export const getCurrentUser = (data: { payload: jwt.JWTPayload; authHeader: string }) => {
+  const userID = data.payload['id'] as AuthorID
   return pipe(
-    TE.tryCatch(() => db.getCurrentUserAdapter(data.userID), E.toError),
+    TE.tryCatch(() => db.getCurrentUserAdapter(userID), E.toError),
     TE.map((user) => getUserResponse({user, token: jwt.extractToken(data.authHeader)})), 
     TE.mapLeft((errors) => getErrorsMessages(errors.message))
   );
