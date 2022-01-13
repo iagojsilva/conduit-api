@@ -9,7 +9,7 @@ import * as TE from "fp-ts/TaskEither";
 import * as E from "fp-ts/Either";
 import { CreatableUser, LoginUser } from "@/core/user/types";
 import * as user from "../adapters/http/modules/user";
-import { extractToken, JWTPayload } from "@/ports/adapters/jwt";
+import { JWTPayload } from "@/ports/adapters/jwt";
 import { getErrorsMessages, getToken } from "../adapters/http/http";
 import { AuthorID, CreatableArticle } from "@/core/article/types";
 import * as article from "@/ports/adapters/http/modules/article";
@@ -59,9 +59,9 @@ app.post<APIUser>("/api/users", (req, reply) => {
 });
 
 app.get("/api/user", authOptions, (req, reply) => {
-  const token = extractToken(req.headers.authorization);
+  const authHeader = req.headers.authorization!;
   const userID = req.headers.payload["id"]! as AuthorID;
-  const data = { userID, token };
+  const data = { userID, authHeader };
   pipe(
     data,
     user.getCurrentUser,

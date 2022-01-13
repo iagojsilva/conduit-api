@@ -6,7 +6,7 @@ import express, {
   Response,
 } from "express";
 import { env } from "@/helpers";
-import { extractToken, JWTPayload } from "@/ports/adapters/jwt";
+import { JWTPayload } from "@/ports/adapters/jwt";
 import cors from "cors";
 import * as user from "@/ports/adapters/http/modules/user";
 import * as article from "@/ports/adapters/http/modules/article";
@@ -45,9 +45,9 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 app.get("/api/user", auth, async (req: Request, res: Response) => {
-  const token = extractToken(req.headers.authorization);
+  const authHeader = req.headers.authorization!;
   const userID = req.auth?.["id"] as AuthorID;
-  const data = { userID, token };
+  const data = { userID, authHeader };
   return pipe(
     data,
     user.getCurrentUser,

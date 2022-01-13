@@ -1,12 +1,12 @@
 import slugify from "slugify";
 import { CreatableArticle } from "@/core/article/types";
-import { db } from "./db";
+import { dbInMemory } from "./db";
 import { v4 as uuidv4 } from "uuid";
 import { CreatableComment } from "@/core/comment/types";
 import { ProfileOutput } from "@/core/profile/types";
 
 const getUserFromDB = (userID: string): ProfileOutput => {
-  const user = db.users[userID];
+  const user = dbInMemory.users[userID];
   if (!user) throw new Error("There is no author with this ID");
   return {
     username: user.username,
@@ -24,9 +24,9 @@ export const createArticleInDB = async (data: CreatableArticle) => {
 
   const articleSlug = slugify(data.title, { lower: true });
 
-  db.articleIDBySlug[articleSlug] = id;
+  dbInMemory.articleIDBySlug[articleSlug] = id;
 
-  const createdArticle = (db.articles[id] = {
+  const createdArticle = (dbInMemory.articles[id] = {
     id,
     slug: articleSlug,
     title: data.title,
@@ -46,7 +46,7 @@ export const createArticleInDB = async (data: CreatableArticle) => {
 };
 
 export const addCommentToArticleInDB = async (data: CreatableComment) => {
-  const articleID = db.articleIDBySlug[data.articleSlug] ?? "ID not found";
+  const articleID = dbInMemory.articleIDBySlug[data.articleSlug] ?? "ID not found";
   const id = Date.now();
   const now = new Date().toISOString();
 
@@ -62,7 +62,7 @@ export const addCommentToArticleInDB = async (data: CreatableComment) => {
   };
 
   // Save the comment in DB
-  db.comments[articleID] = (db.comments[articleID] ?? []).concat([comment]);
+  dbInMemory.comments[articleID] = (dbInMemory.comments[articleID] ?? []).concat([comment]);
 
   return {
     comment,
