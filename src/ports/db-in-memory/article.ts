@@ -39,8 +39,9 @@ export const createArticleInDB = async (data: CreatableArticle) => {
     authorID: data.authorID,
   });
 
+
   return {
-    article: createdArticle,
+    ...createdArticle,
     author,
   };
 };
@@ -65,7 +66,7 @@ export const addCommentToArticleInDB = async (data: CreatableComment) => {
   dbInMemory.comments[articleID] = (dbInMemory.comments[articleID] ?? []).concat([comment]);
 
   return {
-    comment,
+    ...comment,
     author,
   };
 };

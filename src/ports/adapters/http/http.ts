@@ -1,4 +1,4 @@
-export * from "@/ports/fastify/server";
+export * from "@/ports/express/server";
 
 import { extractToken, verifyJWT } from "@/ports/adapters/jwt";
 
