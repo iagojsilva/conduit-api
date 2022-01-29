@@ -1,5 +1,5 @@
 import * as t from "io-ts";
-import { emailCodec, slugCodec, urlCodec, passowordCodec } from "../types";
+import { emailCodec, slugCodec, urlCodec, passwordCodec } from "../types";
 
 const userCodecRequired = t.type({
   email: emailCodec,
@@ -20,14 +20,23 @@ export type UserOutput = t.OutputOf<typeof userCodec>;
 export const creatableUserCodec = t.type({
   username: slugCodec,
   email: emailCodec,
-  password: passowordCodec,
+  password: passwordCodec,
 });
 
 export type CreatableUser = t.TypeOf<typeof creatableUserCodec>;
+export const updatableUserCodec = t.partial({
+  email: emailCodec,
+  username: slugCodec,
+  password: passwordCodec,
+  bio: t.string,
+  image: urlCodec,
+})
+
+export type UpdatableUser = t.TypeOf<typeof updatableUserCodec>
 
 export const loginUserCodec = t.type({
   email: emailCodec,
-  password: passowordCodec,
+  password: passwordCodec,
 });
 
 export type LoginUser = t.TypeOf<typeof loginUserCodec>;

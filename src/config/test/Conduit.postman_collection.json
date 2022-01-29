@@ -282,7 +282,7 @@
             ],
             "body":{
               "mode":"raw",
-              "raw":"{\"user\":{\"email\":\"{{EMAIL}}\"}}"
+              "raw":"{\"user\":{\"email\":\"iagosilva@gmail.com\"}}"
             },
             "url":{
               "raw":"{{APIURL}}/user",

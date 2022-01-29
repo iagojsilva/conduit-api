@@ -21,6 +21,7 @@ export type UserID = string;
 type DBInMemory = {
   users: { [id: string]: DBUser };
   userByEmail: { [email: string]: UserID };
+  userByUsername: { [username: string]: UserID };
   articles: { [id: string]: DBArticle };
   articleIDBySlug: { [slug: string]: string };
   comments: { [articleID: string]: Array<DBComment> };
@@ -29,6 +30,7 @@ type DBInMemory = {
 export const dbInMemory: DBInMemory = {
   users: {},
   userByEmail: {},
+  userByUsername: {},
   articles: {},
   articleIDBySlug: {},
   comments: {},
