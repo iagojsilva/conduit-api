@@ -5,3 +5,4 @@ export const login = dbOps.login
 export const createArticleInDBAdapter = dbOps.createArticleInDB
 export const addCommentToArticleInDB = dbOps.addCommentToArticleInDB
 export const getCurrentUserAdapter = dbOps.getCurrentUser
+export const updateUserAdapter = dbOps.updateUser

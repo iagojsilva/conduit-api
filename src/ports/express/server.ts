@@ -43,6 +43,24 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
     res.status(401).json(getErrorsMessages("You need to be authorized"));
   }
 };
+app.put("/api/user", auth, async (req: Request, res: Response) => {
+  const payload = req.auth ?? {}
+  const tokenInformation = {
+    payload,
+    authHeader: req.headers.authorization ?? ''
+  }
+
+  const data = req.body.user
+
+  return pipe(
+    data,
+    user.updateUser(tokenInformation),
+    TE.map((result) => {
+      res.json(result);
+    }),
+    TE.mapLeft((errors) => res.status(422).json(errors))
+  )();
+});
 app.get("/api/user", auth, async (req: Request, res: Response) => {
   const payload = req.auth ?? {}
   return pipe(

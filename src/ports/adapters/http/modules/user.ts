@@ -1,4 +1,4 @@
-import { CreatableUser, LoginUser, UserOutput } from "@/core/user/types";
+import { CreatableUser, LoginUser, UpdatableUser, UserOutput } from "@/core/user/types";
 import { registerUserAdapter } from "@/core/user/use-cases/user-register-adapter";
 import { pipe } from "fp-ts/lib/function";
 import * as db from "@/ports/adapters/db";
@@ -34,16 +34,24 @@ export const login = (data: LoginUser) => {
     TE.mapLeft((error) => getErrorsMessages(error.message))
   );
 };
-
-export const getCurrentUser = (data: { payload: jwt.JWTPayload; authHeader: string }) => {
-  const userID = data.payload['id'] as AuthorID
+type TokenInformation = { payload: jwt.JWTPayload; authHeader: string }
+export const getCurrentUser = (token: TokenInformation) => {
+  const userID = token.payload['id'] as AuthorID
   return pipe(
     TE.tryCatch(() => db.getCurrentUserAdapter(userID), E.toError),
-    TE.map((user) => getUserResponse({user, token: jwt.extractToken(data.authHeader)})), 
+    TE.map((user) => getUserResponse({user, token: jwt.extractToken(token.authHeader)})), 
     TE.mapLeft((errors) => getErrorsMessages(errors.message))
   );
 };
 
+export const updateUser = (token: TokenInformation) => (data: UpdatableUser) => {
+  const userID = token.payload['id'] as AuthorID
+  return pipe(
+    TE.tryCatch(() => db.updateUserAdapter(data)(userID), E.toError),
+    TE.map((user) => getUserResponse({user, token: jwt.extractToken(token.authHeader)})), 
+    TE.mapLeft((errors) => getErrorsMessages(errors.message))
+  );
+};
 type GetUserResponseInput = {
   user: db.database.DBUser,
   token: string
