@@ -7,6 +7,7 @@ import * as E from "fp-ts/Either";
 import { getErrorsMessages } from "../http";
 import { AuthorID } from "@/core/article/types";
 import * as jwt from '@/ports/adapters/jwt'
+import { updateUserCoreAdapter } from "@/core/user/use-cases/user-update-adapter";
 
 export const createUser = (data: CreatableUser) => {
   return pipe(
@@ -23,7 +24,6 @@ export const createUser = (data: CreatableUser) => {
 };
 
 export const login = (data: LoginUser) => {
-
   return pipe(
     TE.tryCatch(() => db.login(data), E.toError),
     TE.chain(user => pipe(
@@ -34,7 +34,9 @@ export const login = (data: LoginUser) => {
     TE.mapLeft((error) => getErrorsMessages(error.message))
   );
 };
+
 type TokenInformation = { payload: jwt.JWTPayload; authHeader: string }
+
 export const getCurrentUser = (token: TokenInformation) => {
   const userID = token.payload['id'] as AuthorID
   return pipe(
@@ -47,7 +49,8 @@ export const getCurrentUser = (token: TokenInformation) => {
 export const updateUser = (token: TokenInformation) => (data: UpdatableUser) => {
   const userID = token.payload['id'] as AuthorID
   return pipe(
-    TE.tryCatch(() => db.updateUserAdapter(data)(userID), E.toError),
+    userID,
+    updateUserCoreAdapter(db.updateUserAdapter)(data),
     TE.map((user) => getUserResponse({user, token: jwt.extractToken(token.authHeader)})), 
     TE.mapLeft((errors) => getErrorsMessages(errors.message))
   );
