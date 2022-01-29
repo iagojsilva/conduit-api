@@ -33,7 +33,6 @@ export const updatableUserCodec = t.partial({
 })
 
 export type UpdatableUser = t.TypeOf<typeof updatableUserCodec>
-export type UpdatableUserOutput = t.OutputOf<typeof updatableUserCodec>
 
 export const loginUserCodec = t.type({
   email: emailCodec,
