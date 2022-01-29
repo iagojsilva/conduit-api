@@ -24,7 +24,7 @@ export const creatableUserCodec = t.type({
 });
 
 export type CreatableUser = t.TypeOf<typeof creatableUserCodec>;
-export const updateUserCodec = t.partial({
+export const updatableUserCodec = t.partial({
   email: emailCodec,
   username: slugCodec,
   password: passwordCodec,
@@ -32,8 +32,8 @@ export const updateUserCodec = t.partial({
   image: urlCodec,
 })
 
-export type UpdatableUser = t.TypeOf<typeof updateUserCodec>
-export type UpdatableUserOutput = t.OutputOf<typeof updateUserCodec>
+export type UpdatableUser = t.TypeOf<typeof updatableUserCodec>
+export type UpdatableUserOutput = t.OutputOf<typeof updatableUserCodec>
 
 export const loginUserCodec = t.type({
   email: emailCodec,
