@@ -3,7 +3,7 @@ import { CreatableUser, LoginUser, UpdatableUser } from "@/core/user/types";
 import { v4 as uuidv4 } from "uuid";
 import argon2 from 'argon2'
 import { AuthorID } from "@/core/article/types";
-const _ = require('lodash')
+import { omitBy, isNil} from 'lodash'
 
 type CreateUserInDB = (data: CreatableUser) => Promise<DBUser>;
 
@@ -46,36 +46,35 @@ export const getCurrentUser = async (userID: AuthorID): Promise<DBUser> => {
 
 export const updateUser = (updatableUser: UpdatableUser) => async (userID: AuthorID): Promise<DBUser> => {
  const currentUser = await getCurrentUser(userID) 
- const userProperties = _.omitBy(updatableUser, _.isNil)
+ const userProperties = omitBy(updatableUser, isNil)
 
  // Make password's hash
  if (userProperties['password']) {
-    const hash = await argon2.hash(userProperties.password)
-    userProperties.password = hash
+    const hash = await argon2.hash(userProperties['password'])
+    userProperties['password'] = hash
  }
 
  // Check if email is already being used
  if (userProperties['email']){
-   const ID = dbInMemory.userByEmail[userProperties.email]
+   const ID = dbInMemory.userByEmail[userProperties['email']]
    if (ID){
      if (ID === userID) throw new Error("This email is already adressed to you")
      throw new Error('This email is already being used')
     }
     delete dbInMemory.userByEmail[currentUser.email]
-    dbInMemory.userByEmail[userProperties.email] = userID
+    dbInMemory.userByEmail[userProperties['email']] = userID
  }
 
  // Check if username is already being used
  if (userProperties['username']){
-   const ID = dbInMemory.userByUsername[userProperties.username]
+   const ID = dbInMemory.userByUsername[userProperties['username']]
    if (ID){
      if (ID === userID) throw new Error("This username is already adressed to you")
      throw new Error('This username is already being used')
     }
     delete dbInMemory.userByUsername[currentUser.username]
-    dbInMemory.userByUsername[userProperties.username] = userID
+    dbInMemory.userByUsername[userProperties['username']] = userID
  }
-
  const updatedUser: DBUser = {...currentUser, ...userProperties}
  dbInMemory.users[userID] = updatedUser
  return updatedUser
