@@ -1,6 +1,7 @@
 import { UserOutput } from "@/core/user/types";
 import { ArticleOutput } from "@/core/article/types";
 import { CommentOutput } from "@/core/comment/types";
+import { ProfileOutput } from "@/core/profile/types";
 
 export type DBUser = Omit<UserOutput, "token"> & {
   id: string;
@@ -15,7 +16,7 @@ export type DBComment = Omit<CommentOutput, "author"> & {
   articleID: string;
   authorID: string;
 };
-
+export type ProfileDB = Omit<ProfileOutput, 'following'>
 export type UserID = string;
 
 type DBInMemory = {
@@ -25,6 +26,7 @@ type DBInMemory = {
   articles: { [id: string]: DBArticle };
   articleIDBySlug: { [slug: string]: string };
   comments: { [articleID: string]: Array<DBComment> };
+  profiles: {[username: string]: ProfileDB}
 };
 
 export const dbInMemory: DBInMemory = {
@@ -34,4 +36,5 @@ export const dbInMemory: DBInMemory = {
   articles: {},
   articleIDBySlug: {},
   comments: {},
+  profiles: {}
 };

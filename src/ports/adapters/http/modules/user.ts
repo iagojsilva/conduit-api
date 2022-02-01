@@ -46,6 +46,14 @@ export const getCurrentUser = (token: TokenInformation) => {
   );
 };
 
+export const getUserProfile = (username: string) => {
+  return pipe(
+    TE.tryCatch(()=>db.getUserProfileAdapter(username), E.toError),
+    // TODO: Implement following
+    TE.map((user) => ({profile: {...user, following: false}})),
+    TE.mapLeft((errors) => getErrorsMessages(errors.message))
+  );
+};
 export const updateUser = (token: TokenInformation) => (data: UpdatableUser) => {
   const userID = token.payload['id'] as AuthorID
   return pipe(
@@ -55,6 +63,7 @@ export const updateUser = (token: TokenInformation) => (data: UpdatableUser) => 
     TE.mapLeft((errors) => getErrorsMessages(errors.message))
   );
 };
+
 type GetUserResponseInput = {
   user: db.database.DBUser,
   token: string

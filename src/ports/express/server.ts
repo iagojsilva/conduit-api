@@ -23,7 +23,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.disable("x-powered-by").disable("etag");
 
-// Public
+app.get("/api/profiles/:username", (req, res) => {
+  return pipe(
+    req.params.username,
+    user.getUserProfile,
+    TE.map((result) => res.json(result)),
+    TE.mapLeft((error) => res.status(404).json(error))
+  )();
+});
 app.post("/api/users", (req, res) => {
   return pipe(
     req.body.user,

@@ -4,9 +4,10 @@ import { v4 as uuidv4 } from "uuid";
 import argon2 from 'argon2'
 import { AuthorID } from "@/core/article/types";
 import { omitBy, isNil} from 'lodash'
+import { ProfileDB } from ".";
+import { toProfile } from "@/core/profile/types";
 
 type CreateUserInDB = (data: CreatableUser) => Promise<DBUser>;
-
 export const createUserInDB: CreateUserInDB = async (data) => {
   if (dbInMemory.userByEmail[data.email]) throw new Error('User already registered')
   
@@ -14,8 +15,16 @@ export const createUserInDB: CreateUserInDB = async (data) => {
 
   const hash = await argon2.hash(data.password)
 
+  // Add some databases entries
   dbInMemory.userByEmail[data.email] = id;
   dbInMemory.userByUsername[data.username] = id;
+  
+  const profile: ProfileDB = {
+   username: data.username, 
+   bio: '',
+   image: '',
+  }
+  dbInMemory.profiles[data.username] = profile
 
   return (dbInMemory.users[id] = {
     id,
@@ -43,6 +52,12 @@ export const getCurrentUser = async (userID: AuthorID): Promise<DBUser> => {
   if (!user) throw new Error('User unexistent')
   return user
 } 
+
+export const getUserProfile = async (username: string): Promise<ProfileDB> => {
+  const profile = dbInMemory.profiles[username]
+  if (!profile) throw new Error("User doesn't exist")
+  return profile
+}
 
 export const updateUser = (updatableUser: UpdatableUser) => async (userID: AuthorID): Promise<DBUser> => {
  const currentUser = await getCurrentUser(userID) 
@@ -77,5 +92,6 @@ export const updateUser = (updatableUser: UpdatableUser) => async (userID: Autho
  }
  const updatedUser: DBUser = {...currentUser, ...userProperties}
  dbInMemory.users[userID] = updatedUser
+ dbInMemory.profiles[updatedUser.username] = toProfile(updatedUser)
  return updatedUser
 }
