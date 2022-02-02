@@ -46,14 +46,23 @@ export const getCurrentUser = (token: TokenInformation) => {
   );
 };
 
-export const getUserProfile = (username: string) => {
+export const getUserProfile = (username: string) => (userID: string) => {
   return pipe(
-    TE.tryCatch(()=>db.getUserProfileAdapter(username), E.toError),
+    TE.tryCatch(()=>db.getUserProfileAdapter(username)(userID), E.toError),
     // TODO: Implement following
-    TE.map((user) => ({profile: {...user, following: false}})),
+    TE.map((user) => ({profile: user})),
     TE.mapLeft((errors) => getErrorsMessages(errors.message))
   );
 };
+
+export const followUnfolow = (followerID: string) => (followedUsername: string) => {
+  return pipe(
+    TE.tryCatch(()=>db.follorUnfollow(followerID)(followedUsername), E.toError),
+    // TODO: Implement following
+    TE.mapLeft((errors) => getErrorsMessages(errors.message))
+  );
+};
+
 export const updateUser = (token: TokenInformation) => (data: UpdatableUser) => {
   const userID = token.payload['id'] as AuthorID
   return pipe(

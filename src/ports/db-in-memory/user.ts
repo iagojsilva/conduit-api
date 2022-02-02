@@ -5,7 +5,7 @@ import argon2 from 'argon2'
 import { AuthorID } from "@/core/article/types";
 import { omitBy, isNil} from 'lodash'
 import { ProfileDB } from ".";
-import { toProfile } from "@/core/profile/types";
+import { Profile, ProfileOutput, toProfile } from "@/core/profile/types";
 
 type CreateUserInDB = (data: CreatableUser) => Promise<DBUser>;
 export const createUserInDB: CreateUserInDB = async (data) => {
@@ -53,10 +53,11 @@ export const getCurrentUser = async (userID: AuthorID): Promise<DBUser> => {
   return user
 } 
 
-export const getUserProfile = async (username: string): Promise<ProfileDB> => {
+export const getUserProfile = (username: string) => async (userID: string): Promise<ProfileOutput> => {
   const profile = dbInMemory.profiles[username]
+  const isFollowing = (dbInMemory.following[userID] ?? []).includes(username)
   if (!profile) throw new Error("User doesn't exist")
-  return profile
+  return {...profile, following: isFollowing}
 }
 
 export const updateUser = (updatableUser: UpdatableUser) => async (userID: AuthorID): Promise<DBUser> => {
@@ -94,4 +95,19 @@ export const updateUser = (updatableUser: UpdatableUser) => async (userID: Autho
  dbInMemory.users[userID] = updatedUser
  dbInMemory.profiles[updatedUser.username] = toProfile(updatedUser)
  return updatedUser
+}
+export const followOrUnfollow = (followerID: string) => async (followedUsername: string) => {
+  const profile = dbInMemory.profiles[followedUsername]
+  if (!profile) throw new Error("User doesn't exists")
+
+  const following = dbInMemory.following[followerID] ?? []
+  const isFollow = following.findIndex(followingUsername => followingUsername === followedUsername)
+  if (isFollow === -1){
+    following.push(followedUsername)
+    dbInMemory.following[followedUsername] = following 
+    return profile
+  }
+  delete following[isFollow]
+  dbInMemory.following[followedUsername] = following 
+  return{ profile: {...profile, following: false}}
 }

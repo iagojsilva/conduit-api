@@ -27,6 +27,7 @@ type DBInMemory = {
   articleIDBySlug: { [slug: string]: string };
   comments: { [articleID: string]: Array<DBComment> };
   profiles: {[username: string]: ProfileDB}
+  following: {[userID: string]: Array<string>}
 };
 
 export const dbInMemory: DBInMemory = {
@@ -36,5 +37,6 @@ export const dbInMemory: DBInMemory = {
   articles: {},
   articleIDBySlug: {},
   comments: {},
-  profiles: {}
+  profiles: {},
+  following: {}
 };

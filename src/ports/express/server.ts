@@ -11,6 +11,7 @@ import cors from "cors";
 import * as user from "@/ports/adapters/http/modules/user";
 import * as article from "@/ports/adapters/http/modules/article";
 import { getErrorsMessages, getToken } from "@/ports/adapters/http/http";
+import { AuthorID } from "@/core/article/types";
 
 type Request = ExpressRequest & { auth?: JWTPayload };
 
@@ -131,6 +132,16 @@ app.post(
   }
 );
 
+app.post("/api/profiles/:username/follow", auth,(req: Request, res: Response) => {
+  const payload = req.auth ?? {};
+  const id = payload["id"] as AuthorID
+  return pipe(
+    req.params['username'] ?? '',
+    user.followUnfolow(id),
+    TE.map((result) => res.json(result)),
+    TE.mapLeft((error) => res.status(404).json(error))
+  )();
+});
 export const start = async () => {
   app.listen(PORT, () => {
     console.log(`Server listing on port ${PORT}`);
