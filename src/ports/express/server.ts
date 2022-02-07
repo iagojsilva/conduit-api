@@ -11,6 +11,7 @@ import cors from "cors";
 import * as user from "@/ports/adapters/http/modules/user";
 import * as article from "@/ports/adapters/http/modules/article";
 import { getErrorsMessages, getToken } from "@/ports/adapters/http/http";
+import { AuthorID } from "@/core/article/types";
 
 type Request = ExpressRequest & { auth?: JWTPayload };
 
@@ -24,13 +25,15 @@ app.use(express.json());
 app.disable("x-powered-by").disable("etag");
 
 app.get("/api/profiles/:username", (req, res) => {
+  const username = req.params.username
   return pipe(
-    req.params.username,
+    username,
     user.getUserProfile,
     TE.map((result) => res.json(result)),
     TE.mapLeft((error) => res.status(404).json(error))
   )();
 });
+
 app.post("/api/users", (req, res) => {
   return pipe(
     req.body.user,
@@ -131,6 +134,26 @@ app.post(
   }
 );
 
+app.delete("/api/profiles/:username/follow", auth,(req: Request, res: Response) => {
+  const payload = req.auth ?? {};
+  const id = payload["id"] as AuthorID
+  return pipe(
+    req.params['username'] ?? '',
+    user.unfollow(id),
+    TE.map((result) => res.json(result)),
+    TE.mapLeft((error) => res.status(404).json(error))
+  )();
+});
+app.post("/api/profiles/:username/follow", auth,(req: Request, res: Response) => {
+  const payload = req.auth ?? {};
+  const id = payload["id"] as AuthorID
+  return pipe(
+    req.params['username'] ?? '',
+    user.follow(id),
+    TE.map((result) => res.json(result)),
+    TE.mapLeft((error) => res.status(404).json(error))
+  )();
+});
 export const start = async () => {
   app.listen(PORT, () => {
     console.log(`Server listing on port ${PORT}`);

@@ -50,10 +50,27 @@ export const getUserProfile = (username: string) => {
   return pipe(
     TE.tryCatch(()=>db.getUserProfileAdapter(username), E.toError),
     // TODO: Implement following
-    TE.map((user) => ({profile: {...user, following: false}})),
+    TE.map((user) => ({profile: user})),
     TE.mapLeft((errors) => getErrorsMessages(errors.message))
   );
 };
+
+export const follow = (followerID: string) => (followedUsername: string) => {
+  return pipe(
+    TE.tryCatch(()=>db.follow(followerID)(followedUsername), E.toError),
+    TE.map(profile => ({profile})),
+    TE.mapLeft((errors) => getErrorsMessages(errors.message))
+  );
+};
+
+export const unfollow = (unfollowerID: string) => (unfollowedUsername: string) => {
+  return pipe(
+    TE.tryCatch(()=>db.unfollow(unfollowerID)(unfollowedUsername), E.toError),
+    TE.map(profile => ({profile})),
+    TE.mapLeft((errors) => getErrorsMessages(errors.message))
+  );
+};
+
 export const updateUser = (token: TokenInformation) => (data: UpdatableUser) => {
   const userID = token.payload['id'] as AuthorID
   return pipe(
