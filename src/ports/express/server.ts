@@ -11,7 +11,6 @@ import cors from "cors";
 import * as user from "@/ports/adapters/http/modules/user";
 import * as article from "@/ports/adapters/http/modules/article";
 import { getErrorsMessages, getToken } from "@/ports/adapters/http/http";
-import { AuthorID } from "@/core/article/types";
 import { id } from "./helpers";
 
 type Request = ExpressRequest & { auth?: JWTPayload };
@@ -140,7 +139,7 @@ app.post(
 
 app.delete("/api/profiles/:username/follow", auth,(req: Request, res: Response) => {
   const payload = req.auth ?? {};
-  const requesterID = payload["id"] as AuthorID
+  const requesterID = id(payload)
   return pipe(
     req.params['username'] ?? '',
     user.unfollow(requesterID),
@@ -150,7 +149,7 @@ app.delete("/api/profiles/:username/follow", auth,(req: Request, res: Response) 
 });
 app.post("/api/profiles/:username/follow", auth,(req: Request, res: Response) => {
   const payload = req.auth ?? {};
-  const requesterID = payload["id"] as AuthorID
+  const requesterID = id(payload)
   return pipe(
     req.params['username'] ?? '',
     user.follow(requesterID),
