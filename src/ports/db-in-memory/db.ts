@@ -16,7 +16,7 @@ export type DBComment = Omit<CommentOutput, "author"> & {
   articleID: string;
   authorID: string;
 };
-export type ProfileDB = Omit<ProfileOutput, 'following'>
+export type ProfileDB = ProfileOutput
 export type UserID = string;
 
 type DBInMemory = {

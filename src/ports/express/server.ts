@@ -12,6 +12,7 @@ import * as user from "@/ports/adapters/http/modules/user";
 import * as article from "@/ports/adapters/http/modules/article";
 import { getErrorsMessages, getToken } from "@/ports/adapters/http/http";
 import { AuthorID } from "@/core/article/types";
+import { id } from "./helpers";
 
 type Request = ExpressRequest & { auth?: JWTPayload };
 
@@ -24,11 +25,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.disable("x-powered-by").disable("etag");
 
-app.get("/api/profiles/:username", (req, res) => {
+app.get("/api/profiles/:username", async (req, res) => {
   const username = req.params.username
+    const payload = await getToken(req.headers.authorization);
+    const requesterID = id(payload) 
+    const userProfile = user.getUserProfile(requesterID)
   return pipe(
     username,
-    user.getUserProfile,
+    userProfile,
     TE.map((result) => res.json(result)),
     TE.mapLeft((error) => res.status(404).json(error))
   )();
@@ -136,20 +140,20 @@ app.post(
 
 app.delete("/api/profiles/:username/follow", auth,(req: Request, res: Response) => {
   const payload = req.auth ?? {};
-  const id = payload["id"] as AuthorID
+  const requesterID = payload["id"] as AuthorID
   return pipe(
     req.params['username'] ?? '',
-    user.unfollow(id),
+    user.unfollow(requesterID),
     TE.map((result) => res.json(result)),
     TE.mapLeft((error) => res.status(404).json(error))
   )();
 });
 app.post("/api/profiles/:username/follow", auth,(req: Request, res: Response) => {
   const payload = req.auth ?? {};
-  const id = payload["id"] as AuthorID
+  const requesterID = payload["id"] as AuthorID
   return pipe(
     req.params['username'] ?? '',
-    user.follow(id),
+    user.follow(requesterID),
     TE.map((result) => res.json(result)),
     TE.mapLeft((error) => res.status(404).json(error))
   )();

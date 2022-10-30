@@ -8,6 +8,7 @@ import { getErrorsMessages } from "../http";
 import { AuthorID } from "@/core/article/types";
 import * as jwt from '@/ports/adapters/jwt'
 import { updateUserCoreAdapter } from "@/core/user/use-cases/user-update-adapter";
+import { curry } from "lodash";
 
 export const createUser = (data: CreatableUser) => {
   return pipe(
@@ -46,14 +47,14 @@ export const getCurrentUser = (token: TokenInformation) => {
   );
 };
 
-export const getUserProfile = (username: string) => {
+export const getUserProfile = curry((requesterID: AuthorID, username: string) => {
   return pipe(
-    TE.tryCatch(()=>db.getUserProfileAdapter(username), E.toError),
+    TE.tryCatch(()=>db.getUserProfileAdapter(requesterID)(username), E.toError),
     // TODO: Implement following
     TE.map((user) => ({profile: user})),
     TE.mapLeft((errors) => getErrorsMessages(errors.message))
   );
-};
+});
 
 export const follow = (followerID: string) => (followedUsername: string) => {
   return pipe(
