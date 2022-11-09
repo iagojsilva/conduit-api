@@ -25,10 +25,10 @@ app.use(express.json());
 app.disable("x-powered-by").disable("etag");
 
 app.get("/api/profiles/:username", async (req, res) => {
-  const username = req.params.username
-    const payload = await getToken(req.headers.authorization);
-    const requesterID = id(payload) 
-    const userProfile = user.getUserProfile(requesterID)
+  const username = req.params.username;
+  const payload = await getToken(req.headers.authorization);
+  const requesterID = id(payload);
+  const userProfile = user.getUserProfile(requesterID);
   return pipe(
     username,
     userProfile,
@@ -57,13 +57,13 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 app.put("/api/user", auth, async (req: Request, res: Response) => {
-  const payload = req.auth ?? {}
+  const payload = req.auth ?? {};
   const tokenInformation = {
     payload,
-    authHeader: req.headers.authorization ?? ''
-  }
+    authHeader: req.headers.authorization ?? "",
+  };
 
-  const data = req.body.user
+  const data = req.body.user;
 
   return pipe(
     data,
@@ -75,14 +75,12 @@ app.put("/api/user", auth, async (req: Request, res: Response) => {
   )();
 });
 app.get("/api/user", auth, async (req: Request, res: Response) => {
-  const payload = req.auth ?? {}
+  const payload = req.auth ?? {};
   return pipe(
-    user.getCurrentUser(
-      {
-        payload,
-        authHeader: req.headers.authorization ?? '',
-      }
-    ),
+    user.getCurrentUser({
+      payload,
+      authHeader: req.headers.authorization ?? "",
+    }),
     TE.map((result) => {
       res.json(result);
     }),
@@ -137,26 +135,35 @@ app.post(
   }
 );
 
-app.delete("/api/profiles/:username/follow", auth,(req: Request, res: Response) => {
-  const payload = req.auth ?? {};
-  const requesterID = id(payload)
-  return pipe(
-    req.params['username'] ?? '',
-    user.unfollow(requesterID),
-    TE.map((result) => res.json(result)),
-    TE.mapLeft((error) => res.status(404).json(error))
-  )();
-});
-app.post("/api/profiles/:username/follow", auth,(req: Request, res: Response) => {
-  const payload = req.auth ?? {};
-  const requesterID = id(payload)
-  return pipe(
-    req.params['username'] ?? '',
-    user.follow(requesterID),
-    TE.map((result) => res.json(result)),
-    TE.mapLeft((error) => res.status(404).json(error))
-  )();
-});
+app.delete(
+  "/api/profiles/:username/follow",
+  auth,
+  (req: Request, res: Response) => {
+    const payload = req.auth ?? {};
+    const requesterID = id(payload);
+    const username = req.params["username"] ?? "";
+    return pipe(
+      username,
+      user.unfollow(requesterID),
+      TE.map((result) => res.json(result)),
+      TE.mapLeft((error) => res.status(404).json(error))
+    )();
+  }
+);
+app.post(
+  "/api/profiles/:username/follow",
+  auth,
+  (req: Request, res: Response) => {
+    const payload = req.auth ?? {};
+    const requesterID = id(payload);
+    return pipe(
+      req.params["username"] ?? "",
+      user.follow(requesterID),
+      TE.map((result) => res.json(result)),
+      TE.mapLeft((error) => res.status(404).json(error))
+    )();
+  }
+);
 export const start = async () => {
   app.listen(PORT, () => {
     console.log(`Server listing on port ${PORT}`);

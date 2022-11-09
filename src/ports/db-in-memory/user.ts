@@ -7,7 +7,7 @@ import { omitBy, isNil, curry} from 'lodash'
 import { ProfileDB } from ".";
 import { toProfile } from "@/core/profile/types";
 import { followOp } from "./following/follow";
-import { unfollowOp } from "./following/unfollow";
+import { unfollowOpFP } from "./following/unfollow";
 
 type CreateUserInDB = (data: CreatableUser) => Promise<DBUser>;
 export const createUserInDB: CreateUserInDB = async (data) => {
@@ -102,4 +102,4 @@ export const updateUser = (updatableUser: UpdatableUser) => async (userID: Autho
  return updatedUser
 }
 export const follow = followOp
-export const unfollow = unfollowOp
+export const unfollow = unfollowOpFP

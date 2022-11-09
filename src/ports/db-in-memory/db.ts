@@ -19,7 +19,7 @@ export type DBComment = Omit<CommentOutput, "author"> & {
 export type ProfileDB = ProfileOutput
 export type UserID = string;
 
-type DBInMemory = {
+export type DBInMemory = {
   users: { [id: string]: DBUser };
   userByEmail: { [email: string]: UserID };
   userByUsername: { [username: string]: UserID };
@@ -40,3 +40,5 @@ export const dbInMemory: DBInMemory = {
   profiles: {},
   following: {}
 };
+
+export type DatabaseKeys = keyof DBInMemory
