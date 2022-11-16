@@ -3,9 +3,11 @@ import { CreatableUser, LoginUser, UpdatableUser } from "@/core/user/types";
 import { v4 as uuidv4 } from "uuid";
 import argon2 from 'argon2'
 import { AuthorID } from "@/core/article/types";
-import { omitBy, isNil} from 'lodash'
+import { omitBy, isNil, curry} from 'lodash'
 import { ProfileDB } from ".";
 import { toProfile } from "@/core/profile/types";
+import { followOp } from "./following/follow";
+import { unfollowOpFP } from "./following/unfollow";
 
 type CreateUserInDB = (data: CreatableUser) => Promise<DBUser>;
 export const createUserInDB: CreateUserInDB = async (data) => {
@@ -23,6 +25,7 @@ export const createUserInDB: CreateUserInDB = async (data) => {
    username: data.username, 
    bio: '',
    image: '',
+   following: false
   }
   dbInMemory.profiles[data.username] = profile
 
@@ -49,15 +52,18 @@ export const login: Login = async (data) => {
 
 export const getCurrentUser = async (userID: AuthorID): Promise<DBUser> => {
   const user = dbInMemory.users[userID]
-  if (!user) throw new Error('User unexistent')
+  if (!user) throw new Error('User inexistent')
   return user
 } 
 
-export const getUserProfile = async (username: string): Promise<ProfileDB> => {
+export const getUserProfile = curry( async (requesterID: AuthorID, username: string): Promise<ProfileDB> => {
   const profile = dbInMemory.profiles[username]
   if (!profile) throw new Error("User doesn't exist")
-  return profile
-}
+
+  const requestUserFollowing = dbInMemory.following[requesterID] || []
+  const following = requestUserFollowing.includes(profile.username) 
+  return {...profile, following}
+})
 
 export const updateUser = (updatableUser: UpdatableUser) => async (userID: AuthorID): Promise<DBUser> => {
  const currentUser = await getCurrentUser(userID) 
@@ -95,3 +101,5 @@ export const updateUser = (updatableUser: UpdatableUser) => async (userID: Autho
  dbInMemory.profiles[updatedUser.username] = toProfile(updatedUser)
  return updatedUser
 }
+export const follow = followOp
+export const unfollow = unfollowOpFP

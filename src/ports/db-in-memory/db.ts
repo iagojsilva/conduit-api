@@ -16,10 +16,10 @@ export type DBComment = Omit<CommentOutput, "author"> & {
   articleID: string;
   authorID: string;
 };
-export type ProfileDB = Omit<ProfileOutput, 'following'>
+export type ProfileDB = ProfileOutput
 export type UserID = string;
 
-type DBInMemory = {
+export type DBInMemory = {
   users: { [id: string]: DBUser };
   userByEmail: { [email: string]: UserID };
   userByUsername: { [username: string]: UserID };
@@ -27,6 +27,7 @@ type DBInMemory = {
   articleIDBySlug: { [slug: string]: string };
   comments: { [articleID: string]: Array<DBComment> };
   profiles: {[username: string]: ProfileDB}
+  following: {[userID: string]: Array<string>}
 };
 
 export const dbInMemory: DBInMemory = {
@@ -36,5 +37,8 @@ export const dbInMemory: DBInMemory = {
   articles: {},
   articleIDBySlug: {},
   comments: {},
-  profiles: {}
+  profiles: {},
+  following: {}
 };
+
+export type DatabaseKeys = keyof DBInMemory
