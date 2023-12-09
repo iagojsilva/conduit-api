@@ -5,19 +5,19 @@ import express, {
   Request as ExpressRequest,
   Response,
 } from "express";
-import { env } from "@/helpers";
 import { JWTPayload } from "@/ports/adapters/jwt";
 import cors from "cors";
 import * as user from "@/ports/adapters/http/modules/user";
 import * as article from "@/ports/adapters/http/modules/article";
 import { getErrorsMessages, getToken } from "@/ports/adapters/http/http";
 import { id } from "./helpers";
+import "dotenv/config";
 
 type Request = ExpressRequest & { auth?: JWTPayload };
 
-const PORT = env("PORT");
+console.log({ env: process.env });
 
-const app = express();
+export const app = express();
 app.use(cors());
 
 app.use(express.urlencoded({ extended: true }));
@@ -164,8 +164,3 @@ app.post(
     )();
   }
 );
-export const start = async () => {
-  app.listen(PORT, () => {
-    console.log(`Server listing on port ${PORT}`);
-  });
-};

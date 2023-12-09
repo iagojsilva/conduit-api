@@ -6,6 +6,7 @@
     "target": "esnext",
     "module": "commonjs",
     "sourceMap": true,
+    "experimentalDecorators": true,
     "outDir": "./dist",
     "rootDir": "./",
 

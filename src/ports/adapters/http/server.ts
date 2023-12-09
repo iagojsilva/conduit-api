@@ -1,3 +1,1 @@
-import { start } from './http'
-
-start()
+export * from "./http";
