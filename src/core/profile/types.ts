@@ -13,11 +13,12 @@ export type Profile = t.TypeOf<typeof profileCodec>;
 export type ProfileOutput = t.OutputOf<typeof profileCodec>;
 
 export const toProfile = (user: UserOutput): ProfileOutput => {
-  const {username, bio, image, ...rest} = user
+  const { username, bio, image, ...rest } = user;
+  rest;
   return {
     username,
-    bio: bio ?? '',
-    image: image ?? '',
-    following: false
-  }
-}
+    bio: bio ?? "",
+    image: image ?? "",
+    following: false,
+  };
+};

@@ -1,1 +1,0 @@
-import '@/ports/adapters/http'

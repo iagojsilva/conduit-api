@@ -1,1 +1,1 @@
-export * from './server'
+export { app } from "./server";
